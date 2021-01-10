@@ -1,0 +1,27 @@
+$text-primary: sans-serif;
+$text-secondary: serif;
+$text-base-size: 1em;
+
+:root {
+  --text-primary: $text-primary;
+  --text-secondary: $text-secondary;
+  --text-base-size: $text-base-size;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  font-family: var(--text-primary);
+  font-size: var(--text-base-size);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
