@@ -1,0 +1,280 @@
+package main
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+)
+
+const (
+	NodeText string = "text"
+	NodeList string = "list"
+	NodeTree string = "tree"
+)
+
+type Node interface {
+	GetKind() string
+	String() string
+}
+
+func Text(text string) Node {
+	return TextNode{NodeText, text}
+}
+
+type TextNode struct {
+	Kind string `json:"kind"`
+	Text string `json:"text"`
+}
+
+func (n TextNode) GetKind() string {
+	return n.Kind
+}
+
+func (n TextNode) String() string {
+	return n.Text
+}
+
+func List(items ...Node) Node {
+	return ListNode{NodeList, items}
+}
+
+type ListNode struct {
+	Kind  string `json:"kind"`
+	Items []Node `json:"items"`
+}
+
+func (n ListNode) GetKind() string {
+	return n.Kind
+}
+
+func (n ListNode) String() string {
+	var sb strings.Builder
+	for _, item := range n.Items {
+		sb.WriteString(item.String())
+	}
+	return sb.String()
+}
+
+func Tree(root Node) Node {
+	return TreeNode{NodeTree, root}
+}
+
+type TreeNode struct {
+	Kind string `json:"kind"`
+	Root Node   `json:"root"`
+}
+
+func (n TreeNode) GetKind() string {
+	return n.Kind
+}
+
+func (n TreeNode) String() string {
+	return n.Root.String()
+}
+
+var rawTree = []byte(`{
+	"kind": "tree",
+	"root": {
+		"kind": "list",
+		"items": [
+			{ "kind": "text", "text": "a" },
+			{ "kind": "text", "text": "b" },
+			{ "kind": "text", "text": "c" }
+		]
+	}
+}`)
+
+// {"kind":"tree","root":{"kind":"list","items":[{"kind":"text","text":""},{"kind":"text","text":""},{"kind":"text","text":""}]}}
+
+func TreeFromJSON(raw []byte) (Node, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(raw, &m)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("%#v\n", m)
+	node, err := BuildTree(m)
+	if err != nil {
+		return nil, err
+	}
+	return node, nil
+}
+
+func BuildTree(node map[string]interface{}) (Node, error) {
+	kind, ok := node["kind"].(string)
+	if !ok {
+		return nil, errors.New("no kind field")
+	}
+
+	switch kind {
+	case NodeTree:
+		root, ok := node["root"].(map[string]interface{})
+		if !ok {
+			return nil, errors.New("no root field")
+		}
+		n, err := BuildTree(root)
+		if err != nil {
+			return nil, err
+		}
+		return Tree(n), nil
+	case NodeList:
+		switch nt := node["items"].(type) {
+		case []interface{}:
+			items, ok := node["items"].([]interface{})
+			if !ok {
+				return nil, errors.New("no items field")
+			}
+			var nodes []Node
+			for _, rawItem := range items {
+				item, ok := (rawItem).(map[string]interface{})
+				if !ok {
+					return nil, errors.New("1 invalid node")
+				}
+				node, err := BuildTree(item)
+				if err != nil {
+					return nil, err
+				}
+				nodes = append(nodes, node)
+			}
+			return List(nodes...), nil
+		case map[string]interface{}:
+			items, ok := node["items"].(map[string]interface{})
+			if !ok {
+				return nil, errors.New("no items field")
+			}
+			var nodes []Node
+			for _, rawItem := range items {
+				item, ok := (rawItem).(map[string]interface{})
+				if !ok {
+					return nil, errors.New("invalid node")
+				}
+				node, err := BuildTree(item)
+				if err != nil {
+					return nil, err
+				}
+				nodes = append(nodes, node)
+			}
+
+			return List(nodes...), nil
+		case []map[string]interface{}:
+			var nodes []Node
+
+			rawNodes := (node["items"]).([]map[string]interface{})
+			if !ok {
+				return nil, errors.New("invalid nodes")
+			}
+
+			for _, rawNode := range rawNodes {
+				n, err := BuildTree(rawNode)
+				if err != nil {
+					return nil, err
+				}
+				nodes = append(nodes, n)
+			}
+
+			return List(nodes...), nil
+		default:
+			return nil, fmt.Errorf("invalid node kind %T\n", nt)
+		}
+	case NodeText:
+		text, ok := node["text"].(string)
+		if !ok {
+			return nil, errors.New("no text field")
+		}
+		return Text(text), nil
+	default:
+		return nil, fmt.Errorf("unsupported node kind %s", kind)
+	}
+}
+
+func convertListNode(node interface{}) (Node, error) {
+	switch t := node["items"].(type) {
+	case []interface{}:
+		return nil, errors.New("not implemented")
+	case map[string]interface{}:
+		return nil, errors.New("not implemented")
+	case []map[string]interface{}:
+		return nil, errors.New("not implemented")
+	default:
+		return nil, fmt.Errorf("invalid list node %T\n", t)
+	}
+}
+
+func listNodeFromMap() (Node, error) {
+	return nil, errors.New("not implemented")
+}
+
+func main() {
+	b, err := TreeFromJSON(rawTree)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(b)
+	t := Tree(
+		List(
+			Text("a\n"),
+			Text("b\n"),
+			Text("c\n"),
+		),
+	)
+	fmt.Println(t)
+	logOrPanic(BuildTree(map[string]interface{}{
+		"kind": "text",
+		"text": "foo",
+	}))
+	logOrPanic(BuildTree(map[string]interface{}{
+		"kind": "list",
+		"items": []map[string]interface{}{
+			map[string]interface{}{
+				"kind": "text",
+				"text": "foo",
+			},
+			map[string]interface{}{
+				"kind": "text",
+				"text": "bar",
+			},
+			map[string]interface{}{
+				"kind": "text",
+				"text": "fib",
+			},
+		},
+	}))
+	logOrPanic(BuildTree(map[string]interface{}{
+		"kind": "tree",
+		"root": map[string]interface{}{
+			"kind": "list",
+			"items": []map[string]interface{}{
+				map[string]interface{}{
+					"kind": "text",
+					"text": "foo",
+				},
+				map[string]interface{}{
+					"kind": "text",
+					"text": "bar",
+				},
+				map[string]interface{}{
+					"kind": "text",
+					"text": "fib",
+				},
+			},
+		},
+	}))
+
+	json.NewEncoder(os.Stdout).Encode(Tree(
+		List(
+			Text("A"),
+			Text("B"),
+			Text("C"),
+		),
+	))
+}
+
+func logOrPanic(v interface{}, err error) {
+	if err != nil {
+		panic(err)
+	}
+	log.Println(v)
+}
