@@ -6,13 +6,24 @@ data Position = Position
 
 mkPosition :: Int -> Int -> Int -> Either String Position
 mkPosition x y z =
-  case (x > 5) of
-   True -> case (y < 5) of
-     True ->  case (z /= 42) of
-       True -> Right $ Position x y z
-       False -> Left "z can't be the answer"
-     False -> Left "y must be higher then 5"
-   False -> Left "x must be higher then 5"
+  if (x > 5) then
+    if (y < 5) then
+      if (z /= 42) then
+        Right $ Position x y z
+      else
+        Left "z can't be the answer"
+    else
+      Left "y must be higher then 5"
+  else
+    Left "x must be higher then 5"
+-- Never - Nested Case Hell xD
+--  case (x > 5) of
+--    True -> case (y < 5) of
+--      True ->  case (z /= 42) of
+--        True -> Right $ Position x y z
+--       False -> Left "z can't be the answer"
+--      False -> Left "y must be higher then 5"
+--    False -> Left "x must be higher then 5"
 
 validateX :: Int -> Either String Int
 validateX x
