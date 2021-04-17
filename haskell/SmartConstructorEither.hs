@@ -12,7 +12,6 @@ mkPosition x y z =
        True -> Right $ Position x y z
        False -> Left "z can't be the answer"
      False -> Left "y must be higher then 5"
-   
    False -> Left "x must be higher then 5"
 
 validateX :: Int -> Either String Int
