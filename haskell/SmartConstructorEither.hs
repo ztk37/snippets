@@ -3,6 +3,16 @@ data Position = Position
   , posY :: Int
   , posZ :: Int
   } deriving (Eq, Show)
+  
+validatePos
+  :: String
+  -> (Int -> Bool)
+  -> Int
+  -> Either String Int
+validatePos msg pred n
+  | pred n = Right n
+  | otherwise = Left msg
+
 
 mkPosition :: Int -> Int -> Int -> Either String Position
 mkPosition x y z =
@@ -55,3 +65,7 @@ main :: IO ()
 main = do
   print $ mkPosition 7 2 3
   print $ mkPosition' 7 2 3
+  print $ Position
+    <$> validatePos "A" (const True) 5
+    <*> validatePos "B" (const False) 5
+    <*> validatePos "C" (const True) 5
