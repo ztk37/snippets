@@ -4,9 +4,9 @@ type abc
   | C
   
 let to_string = function 
-  | A->"A"
-  | B->"B"
-  | C->"C"
+  | A -> "A"
+  | B -> "B"
+  | C -> "C"
     
 module ABC = struct
   type t
