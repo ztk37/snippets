@@ -1,3 +1,5 @@
+import Control.Monad.Trans.Writer
+
 data FieldSet a = FieldSet
   { fields :: [a]
   } deriving (Show)
@@ -30,14 +32,34 @@ addFieldB x = Root mempty (FieldSet [x]) mempty
 addFieldC :: Bool -> Root
 addFieldC x = Root mempty mempty (FieldSet [x])
 
+type App = Writer Root ()
+
+tellFieldA :: Int -> App
+tellFieldA = tell . addFieldA
+
+tellFieldB :: String -> App
+tellFieldB = tell . addFieldB
+
+tellFieldC :: Bool -> App
+tellFieldC = tell . addFieldC
+
+run :: App
+run = do
+  tellFieldA 1
+  tellFieldA 2
+  tellFieldA 3
+
 main :: IO ()
-main = print $ mempty
-  <> addFieldA 1
-  <> addFieldA 2
-  <> addFieldA 3
-  <> addFieldB "Foo"
-  <> addFieldB "Fib"
-  <> addFieldB "Bar"
-  <> addFieldC True
-  <> addFieldC True
-  <> addFieldC False
+main = do
+  print $ mempty
+    <> addFieldA 1
+    <> addFieldA 2
+    <> addFieldA 3
+    <> addFieldB "Foo"
+    <> addFieldB "Fib"
+    <> addFieldB "Bar"
+    <> addFieldC True
+    <> addFieldC True
+    <> addFieldC False
+
+  print $ runWriter run 
