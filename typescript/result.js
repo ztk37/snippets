@@ -22,6 +22,50 @@ function result<T, U, E>(
     }
 }
 
+function mapResult<T, U, E>(
+  f: (_: T) => U,
+  r: Result<T, E>
+): Result<U, E> {
+    switch (r._tag) {
+        case "success": return {
+          _tag: "success",
+          value: f(r.value)
+        }
+        case "failure": return r
+    }
+}
+
+function mapSuccess<T, U>(
+  f: (_: T) => U,
+  {value}: Success<T>
+): Success<U> {
+  return {
+    _tag: "success",
+    value: f(value)
+  }
+}
+
+type SuccessFactory<T> = (_: T) => Success<T>
+type FailureFactory<E> = (_: E) => Failure<E>
+
+const success: SuccessFactory<number> = value => ({
+  _tag: "success",
+  value
+})
+
+const failure: FailureFactory<string> = reason => ({
+  _tag: "failure",
+  reason
+})
+
+const value = result<number, number, number>(
+  success(42),
+  arg => arg.value,
+  arg => arg.reason
+);
+  
+console.log(value);
+
 // Or class based
 
 type UniFunction<T, U> = (arg: T) => U;
