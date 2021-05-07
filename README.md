@@ -16,11 +16,12 @@
 
 ## Next Languages
 
-- Nix
 - Docker
+- Nix
 
 ## Extra Languages
 
+- Ocaml
 - Prolog
 - Ruby
 - Perl
