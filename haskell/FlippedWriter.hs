@@ -21,9 +21,9 @@ baseTriple = Triple Nothing 0 False
 
 run :: Triple
 run = flip appEndo baseTriple $ execWriter $ do
-  tell $ Endo id
-  tell $ Endo id
-  tell $ Endo id
+  tell $ Endo $ setTripleA "Derp"
+  tell $ Endo $ setTripleB 42
+  tell $ Endo $ setTripleC True
 
 main :: IO ()
 main = print run
