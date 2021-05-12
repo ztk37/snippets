@@ -36,3 +36,4 @@ run = execWriter $ do
 
 main :: IO ()
 main = putStrLn $ unlines . map show . Map.elems $ run
+-- mapM_ print run
