@@ -18,7 +18,8 @@ newtype AppT m a = AppT
              , Applicative
              , Monad
              , MonadIO
-             , MonadReader Env)
+             , MonadReader Env
+             )
 
 runAppT :: Env -> AppT m a -> m a
 runAppT s m = runReaderT (unAppT m) s
