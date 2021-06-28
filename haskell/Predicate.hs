@@ -1,15 +1,15 @@
 newtype Predicate a = Predicate
   { runPredicate :: a -> Bool }
 
-composePredicates :: Predicate a -> Predicate a -> Predicate a
-composePredicates (Predicate p1) (Predicate p2) =
+combinePredicates :: Predicate a -> Predicate a -> Predicate a
+combinePredicates (Predicate p1) (Predicate p2) =
   Predicate $ \x -> p1 x && p2 x
 
 instance Semigroup (Predicate a) where
-  (<>) = composePredicates
+  (<>) = combinePredicates
 
 instance Monoid (Predicate a) where
-  mempty = Predicate $ \_ -> True
+  mempty = Predicate (const True)
 
 pred1 :: Predicate Bool
 pred1 = Predicate $ \_ -> True
