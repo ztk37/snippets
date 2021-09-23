@@ -36,10 +36,10 @@ modify :: (Options -> Options) -> OptMod
 modify = Endo
 
 setVerbose :: OptMod
-setVerbose = modify $ \opt -> opt { optHelp = True }
+setVerbose = modify $ \opt -> opt { optVerbose = True }
 
 setHelp :: OptMod
-setHelp = modify $ \opt -> opt { optVerbose = True }
+setHelp = modify $ \opt -> opt { optHelp = True }
 
 data Options = Options
   { optVerbose :: Bool
@@ -67,6 +67,9 @@ options' =
 args :: [String]
 args = ["-v", "-h", "--help", "derp"]
 
+args' :: [String]
+args' = ["-v", "derp"]
+
 parseArgs :: Either [String] [String]
 parseArgs =
   case getOpt (ReturnInOrder (const Nothing)) options args of
@@ -75,9 +78,23 @@ parseArgs =
 
 parseArgs' :: Either [String] Options
 parseArgs' =
-  case getOpt (ReturnInOrder mempty) options' args of
+  case getOpt (ReturnInOrder mempty) options' args' of
     (ps, [], []) -> Right $ appEndo (mconcat ps) defaultOptions
     (_, _, errs) -> Left errs
+
+defaultMain :: IO ()
+defaultMain = do
+  case parseArgs of
+    Left errs -> print errs
+    Right opts -> print opts
+
+defaultMain' :: IO ()
+defaultMain' = do
+  case parseArgs' of
+    Left errs -> print errs
+    Right opts
+      | optHelp opts -> putStrLn "help"
+      | otherwise -> print opts
 
 main :: IO ()
 main = do
@@ -86,3 +103,6 @@ main = do
   print env
   print parseArgs
   print parseArgs'
+
+  defaultMain
+  defaultMain'
