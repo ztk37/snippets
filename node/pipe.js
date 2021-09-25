@@ -1001,12 +1001,9 @@ const dataset = [
   { favoriteColor: "pink", gender: "female", animal: "dog" },
 ];
 
-const pipe = (...fns) =>
-	res =>
-		fns.reduce((acc, next) => next(acc), res)
+const pipe = (...fns) => (res) => fns.reduce((acc, next) => next(acc), res);
 
-
-const splitBy = cond => xs =>
+const splitBy = (cond) => (xs) =>
   xs.reduce(
     (acc, cur) => {
       return cond(cur)
@@ -1025,7 +1022,7 @@ const splitBy = cond => xs =>
     }
   );
 
-const counts = key => xs => ({
+const counts = (key) => (xs) => ({
   counts: xs.reduce((acc, cur) => {
     if (!acc[cur[key]]) {
       acc[cur[key]] = 0;
@@ -1047,63 +1044,50 @@ const relativeCounts = ({ counts, total }) =>
     {}
   );
 
-const map = f => xs => xs.map(f)
-const filter = p => xs => xs.filter(p)
-const sum = xs => xs.reduce((acc, cur) => acc + cur, 0)
+const map = (f) => (xs) => xs.map(f);
+const filter = (p) => (xs) => xs.filter(p);
+const sum = (xs) => xs.reduce((acc, cur) => acc + cur, 0);
 
-const log = x => {
-	console.log(x)
-	return x
-}
+const log = (x) => {
+  console.log(x);
+  return x;
+};
 
-const tap = f => x => {
-	f(x)
-	return x
-} 
+const tap = (f) => (x) => {
+  f(x);
+  return x;
+};
 
-const apply = f => xs => {
-	if (Array.isArray(xs)) return xs.map(f)
-	return f(xs)
-}
+const apply = (f) => (xs) => {
+  if (Array.isArray(xs)) return xs.map(f);
+  return f(xs);
+};
 
+console.log(pipe(counts("gender"))(dataset));
 console.log(
-	pipe(
-		counts("gender")
-	)(dataset)
+  pipe(
+    counts("animal")
+    // log
+  )(dataset)
 );
 console.log(
-	pipe(
-		counts("animal"),
-		// log
-	)(dataset)
-);
-console.log(
-	pipe(
-		counts("favoriteColor"),
-		// log,
-		relativeCounts,
-	)(dataset)
+  pipe(
+    counts("favoriteColor"),
+    // log,
+    relativeCounts
+  )(dataset)
 );
 
 console.log(
-	pipe(
-		splitBy(entry => entry.gender === "male"),
-		apply(({
-			left,
-			right
-		}) => ({
-			male: pipe(
-				counts("favoriteColor"),
-				relativeCounts,
-			)(left),
-			female: pipe(
-				counts("favoriteColor"),
-				relativeCounts,
-			)(right),
-		})),
-		// apply(({male, female}) => ({
-		//	male: sum(Object.values(male)),
-		//	female: sum(Object.values(female)),
-		// }))
-	)(dataset)
-)
+  pipe(
+    splitBy((entry) => entry.gender === "male"),
+    apply(({ left, right }) => ({
+      male: pipe(counts("favoriteColor"), relativeCounts)(left),
+      female: pipe(counts("favoriteColor"), relativeCounts)(right),
+    }))
+    // apply(({male, female}) => ({
+    //	male: sum(Object.values(male)),
+    //	female: sum(Object.values(female)),
+    // }))
+  )(dataset)
+);
