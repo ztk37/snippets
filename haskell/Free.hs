@@ -35,6 +35,7 @@ instance Functor f => Monad (Free f) where
 data EffectF next
   = EchoEff String next
   | PromptEff (String -> next)
+  | PromptWithPrefixEff String (String -> next)
   deriving Functor
 
 type Effect next = Free EffectF next
@@ -62,11 +63,17 @@ echo s = liftF $ EchoEff s ()
 prompt :: Effect String
 prompt = Free $ PromptEff return
 
+promptWithPrefix :: String -> Effect String
+promptWithPrefix s = Free $ PromptWithPrefixEff s return
+
 programm :: Effect ()
 programm = do
   s <- prompt
   echo "Foo"
   echo s
+  p <- promptWithPrefix "> "
+  echo p
+  
 
 interpret :: Effect a -> IO a
 interpret = foldF morph
@@ -78,6 +85,10 @@ interpret = foldF morph
     morph (PromptEff next) = do
       s <- getLine
       pure $ next s
+    morph (PromptWithPrefixEff prefix next) = do
+      putStr prefix
+      s <- getLine
+      pure $ next s
 
 interpret' :: Effect a -> IO a
 interpret' = foldF $ \case 
@@ -87,6 +98,10 @@ interpret' = foldF $ \case
     (PromptEff next) -> do
       s <- getLine
       pure $ next s
+    (PromptWithPrefixEff prefix next) -> do
+      putStr prefix
+      s <- getLine
+      pure $ next s
 
 interpret'' :: Effect a -> IO a
 interpret'' = foldF $ \case 
@@ -94,9 +109,17 @@ interpret'' = foldF $ \case
       next <$ putStrLn s
     (PromptEff next) ->
       next <$> getLine
+    (PromptWithPrefixEff prefix next) -> do
+      next <$> getLine <* putStr prefix
 
 main :: IO ()
 main = do
   interpret programm
+
+  putStrLn ""
+
   interpret' programm
+
+  putStrLn ""
+
   interpret'' programm
