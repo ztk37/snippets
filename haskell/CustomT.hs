@@ -17,7 +17,6 @@ instance Functor m => Functor (CustomT m) where
   TODO: impl Applicative instance
   - [x] pure
   - [x] <*>
-  - [x] liftA2
 -}
 instance Applicative m => Applicative (CustomT m) where
   pure = liftCustomT . pure
