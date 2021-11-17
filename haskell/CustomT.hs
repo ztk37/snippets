@@ -16,18 +16,23 @@ instance Functor m => Functor (CustomT m) where
 {-
   TODO: impl Applicative instance
   - [x] pure
-  - <*> / liftA2
+  - [x] <*>
+  - [x] liftA2
 -}
 instance Applicative m => Applicative (CustomT m) where
   pure = liftCustomT . pure
+  f <*> x = CustomT $ runCustomT f <*> runCustomT x
 
 {-
   TODO: impl Monad instance
   - [x] return
-  - [ ] >>=
+  - [x] >>=
 -}
 instance Monad m => Monad (CustomT m) where
   return = liftCustomT . return
+  m >>= k = CustomT $ do
+    a <- runCustomT m
+    runCustomT $ k a
 
 main :: IO ()
 main = return ()
