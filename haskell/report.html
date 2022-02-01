@@ -1,0 +1,2222 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<title>HLint Report</title>
+<script type='text/javascript'>
+
+/* == Algorithm for show/unshow ==
+   Each hint/file is given a number, hint# or file#
+   When we say showOnly with a class name we add the rules to
+   the css #content div {display:none}, #content div.className {display:block}
+   When going back to showAll we remove these results
+*/
+
+// CSS MANIPULATION //
+
+function deleteRules(n)
+{
+    var css = document.styleSheets[0];
+    for (var i = 0; i < n; i++)
+        css.deleteRule(css.cssRules.length-1);
+}
+
+function insertRule(s)
+{
+    var css = document.styleSheets[0];
+    css.insertRule(s, css.cssRules.length);
+}
+
+// SHOW/HIDE LOGIC //
+
+/**
+ * @param {bool} [initialise=false] - Used to signal we are loading the page, so
+ the current location doesn't match our presumed state.
+ */
+function show(id, initialise=false)
+{
+    var last;
+    if (initialise)
+    {
+        last = "";
+    }
+    else
+    {
+        last = document.location.hash.slice(1);
+    }
+
+    if (id === last) return;
+    if (id.length === 0)
+    {
+        deleteRules(3);
+        insertRule(".all {font-weight: bold;}");
+    }
+    else
+    {
+        if (last.length === 0)
+        {
+            deleteRules(1);
+            insertRule("#content div {display:none;}");
+        }
+        else
+        {
+            deleteRules(2);
+        }
+        insertRule("#content div." + id + " {display:block;}");
+        insertRule("#" + id + "{font-weight:bold;}");
+    }
+
+    if (window.history)
+        history.replaceState("", document.title, window.location.pathname + window.location.search + (id === "" ? "" : "#" + id));
+    else
+        document.location.hash = '#'.concat(id);
+}
+
+</script>
+<style type="text/css">
+/* These rules are manipulated by the script.
+   The commented form is how it looks with an id selected */
+
+.all {font-weight: bold;}      /* #content div {display:none;} */
+                               /* #content div.id {display:block;} */
+                               /* #id {font-weight: bold;} */
+
+</style>
+<style type="text/css">
+/* See http://www.webreference.com/programming/css_frames/ */
+body {
+    margin:0;
+    border:0;
+    padding:0;
+    height:100%;
+    max-height:100%;
+    font-family: sans-serif;
+    font-size:76%;
+    overflow: hidden;
+}
+
+#leftbar {
+    position:absolute;
+    top:0px;
+    left:0px;
+    width: 215px;
+    bottom: 0px;
+    overflow:auto;
+    background:rgb(202,223,255);
+    margin: 10px;
+    padding-top: 0;
+    padding-left: 7px;
+    padding-right: 7px;
+    border-radius: 5px;
+
+    display:none; /* Override if script present */
+}
+
+#content {
+    position:absolute;
+    top:0;
+    bottom:0;
+    right:0;
+    overflow:auto;
+    padding-bottom: 15px;
+    padding-right: 7px;
+
+    left:10px; /* Override if script present */
+}
+
+#leftbar ul {margin-top: 0px; padding-left: 15px;}
+#leftbar p {margin-bottom: 0px;}
+.note {color: gray; font-size: smaller;}
+
+pre {
+    font-family: "lucida console", monospace;
+    padding-left: 15px;
+    margin: 2px;
+}
+
+#content div {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    padding-top: 4px;
+    border-top: 1px solid #ccc;
+}
+
+.script #content {left:250px;}
+.script #leftbar {display: block;}
+
+/* From HsColour */
+.hs-keyglyph, .hs-layout {color: red;}
+.hs-keyword {color: blue;}
+.hs-comment, .hs-comment a {color: green;}
+.hs-str, .hs-chr {color: teal;}
+</style>
+</head>
+<body>
+
+<script type='text/javascript'>
+document.body.className = "script";
+</script>
+
+<div id="leftbar" valign="top" style="min-width:200px">
+
+<p><a class="all" href="javascript:show('')">All hints</a></p>
+<ul>
+<li><a id="hint0" href="javascript:show('hint0')">Error: Parse error: Invalid type signature: BLU.toString :: ...
+Should be of form &lt;variable&gt; :: &lt;type&gt; (1)</a></li>
+<li><a id="hint1" href="javascript:show('hint1')">Error: Parse error: on input `import&#39; (1)</a></li>
+<li><a id="hint2" href="javascript:show('hint2')">Error: Parse error: possibly incorrect indentation or mismatched brackets (1)</a></li>
+<li><a id="hint3" href="javascript:show('hint3')">Warning: Eta reduce (6)</a></li>
+<li><a id="hint4" href="javascript:show('hint4')">Warning: Functor law (6)</a></li>
+<li><a id="hint5" href="javascript:show('hint5')">Warning: Fuse mapM/map (1)</a></li>
+<li><a id="hint6" href="javascript:show('hint6')">Warning: Monoid law, left identity (1)</a></li>
+<li><a id="hint7" href="javascript:show('hint7')">Warning: Monoid law, right identity (1)</a></li>
+<li><a id="hint8" href="javascript:show('hint8')">Warning: Redundant &lt;$&gt; (1)</a></li>
+<li><a id="hint9" href="javascript:show('hint9')">Warning: Redundant bracket (3)</a></li>
+<li><a id="hint10" href="javascript:show('hint10')">Warning: Redundant flip (2)</a></li>
+<li><a id="hint11" href="javascript:show('hint11')">Warning: Redundant id (1)</a></li>
+<li><a id="hint12" href="javascript:show('hint12')">Warning: Redundant lambda (3)</a></li>
+<li><a id="hint13" href="javascript:show('hint13')">Warning: Redundant return (2)</a></li>
+<li><a id="hint14" href="javascript:show('hint14')">Warning: Unused LANGUAGE pragma (2)</a></li>
+<li><a id="hint15" href="javascript:show('hint15')">Warning: Use &lt;$&gt; (8)</a></li>
+<li><a id="hint16" href="javascript:show('hint16')">Warning: Use &gt;&gt; (2)</a></li>
+<li><a id="hint17" href="javascript:show('hint17')">Warning: Use asks (7)</a></li>
+<li><a id="hint18" href="javascript:show('hint18')">Warning: Use empty (1)</a></li>
+<li><a id="hint19" href="javascript:show('hint19')">Warning: Use fold (1)</a></li>
+<li><a id="hint20" href="javascript:show('hint20')">Warning: Use gets (3)</a></li>
+<li><a id="hint21" href="javascript:show('hint21')">Warning: Use mapM (1)</a></li>
+<li><a id="hint22" href="javascript:show('hint22')">Warning: Use mapMaybe (1)</a></li>
+<li><a id="hint23" href="javascript:show('hint23')">Warning: Use print (2)</a></li>
+<li><a id="hint24" href="javascript:show('hint24')">Suggestion: Move brackets to avoid $ (5)</a></li>
+<li><a id="hint25" href="javascript:show('hint25')">Suggestion: Redundant $ (36)</a></li>
+<li><a id="hint26" href="javascript:show('hint26')">Suggestion: Redundant bracket (32)</a></li>
+<li><a id="hint27" href="javascript:show('hint27')">Suggestion: Replace case with maybe (1)</a></li>
+<li><a id="hint28" href="javascript:show('hint28')">Suggestion: Use &lt;$&gt; (1)</a></li>
+<li><a id="hint29" href="javascript:show('hint29')">Suggestion: Use &lt;&amp;&gt; (2)</a></li>
+<li><a id="hint30" href="javascript:show('hint30')">Suggestion: Use const (4)</a></li>
+<li><a id="hint31" href="javascript:show('hint31')">Suggestion: Use foldr (1)</a></li>
+<li><a id="hint32" href="javascript:show('hint32')">Suggestion: Use if (2)</a></li>
+<li><a id="hint33" href="javascript:show('hint33')">Suggestion: Use infix (2)</a></li>
+<li><a id="hint34" href="javascript:show('hint34')">Suggestion: Use let (3)</a></li>
+<li><a id="hint35" href="javascript:show('hint35')">Suggestion: Use list literal pattern (3)</a></li>
+<li><a id="hint36" href="javascript:show('hint36')">Suggestion: Use newtype instead of data (37)</a></li>
+</ul>
+
+<p><a class="all" href="javascript:show('')">All files</a></p>
+<ul>
+<li><a id="file0" href="javascript:show('file0')">.\ABC.hs (1)</a></li>
+<li><a id="file1" href="javascript:show('file1')">.\ADT.hs (3)</a></li>
+<li><a id="file2" href="javascript:show('file2')">.\Aggregate.hs (2)</a></li>
+<li><a id="file3" href="javascript:show('file3')">.\AppState.hs (1)</a></li>
+<li><a id="file4" href="javascript:show('file4')">.\AppT.hs (3)</a></li>
+<li><a id="file5" href="javascript:show('file5')">.\ApplicativeLifting.hs (4)</a></li>
+<li><a id="file6" href="javascript:show('file6')">.\ByteString.hs (4)</a></li>
+<li><a id="file7" href="javascript:show('file7')">.\Classes.hs (8)</a></li>
+<li><a id="file8" href="javascript:show('file8')">.\Classes2.hs (2)</a></li>
+<li><a id="file9" href="javascript:show('file9')">.\ComposeCase.hs (2)</a></li>
+<li><a id="file10" href="javascript:show('file10')">.\Default.hs (2)</a></li>
+<li><a id="file11" href="javascript:show('file11')">.\DeriveFunctor.hs (9)</a></li>
+<li><a id="file12" href="javascript:show('file12')">.\DerivingVia.hs (3)</a></li>
+<li><a id="file13" href="javascript:show('file13')">.\EDSL.hs (1)</a></li>
+<li><a id="file14" href="javascript:show('file14')">.\Ex01.hs (3)</a></li>
+<li><a id="file15" href="javascript:show('file15')">.\Expr.hs (1)</a></li>
+<li><a id="file16" href="javascript:show('file16')">.\Free.hs (4)</a></li>
+<li><a id="file17" href="javascript:show('file17')">.\FromEnv.hs (3)</a></li>
+<li><a id="file18" href="javascript:show('file18')">.\GetArgs.hs (3)</a></li>
+<li><a id="file19" href="javascript:show('file19')">.\HasParams.hs (4)</a></li>
+<li><a id="file20" href="javascript:show('file20')">.\ItemList.hs (3)</a></li>
+<li><a id="file21" href="javascript:show('file21')">.\LangCodes.hs (4)</a></li>
+<li><a id="file22" href="javascript:show('file22')">.\LiftM.hs (3)</a></li>
+<li><a id="file23" href="javascript:show('file23')">.\List.hs (1)</a></li>
+<li><a id="file24" href="javascript:show('file24')">.\Loop.hs (3)</a></li>
+<li><a id="file25" href="javascript:show('file25')">.\Maps.hs (2)</a></li>
+<li><a id="file26" href="javascript:show('file26')">.\MiniDSL.hs (2)</a></li>
+<li><a id="file27" href="javascript:show('file27')">.\Mod.hs (2)</a></li>
+<li><a id="file28" href="javascript:show('file28')">.\ModuleParser.hs (2)</a></li>
+<li><a id="file29" href="javascript:show('file29')">.\MonadStack.hs (6)</a></li>
+<li><a id="file30" href="javascript:show('file30')">.\MonoidFoldMap.hs (1)</a></li>
+<li><a id="file31" href="javascript:show('file31')">.\Mtl.hs (4)</a></li>
+<li><a id="file32" href="javascript:show('file32')">.\NestedMonoids.hs (2)</a></li>
+<li><a id="file33" href="javascript:show('file33')">.\NewtypeDeriving.hs (3)</a></li>
+<li><a id="file34" href="javascript:show('file34')">.\OptParser.hs (1)</a></li>
+<li><a id="file35" href="javascript:show('file35')">.\ParseArgs.hs (6)</a></li>
+<li><a id="file36" href="javascript:show('file36')">.\ParsecDemo.hs (2)</a></li>
+<li><a id="file37" href="javascript:show('file37')">.\Persist.hs (1)</a></li>
+<li><a id="file38" href="javascript:show('file38')">.\PluginMap.hs (4)</a></li>
+<li><a id="file39" href="javascript:show('file39')">.\Predicate.hs (3)</a></li>
+<li><a id="file40" href="javascript:show('file40')">.\Pretty.hs (1)</a></li>
+<li><a id="file41" href="javascript:show('file41')">.\PrimitiveParser.hs (2)</a></li>
+<li><a id="file42" href="javascript:show('file42')">.\RIO.hs (2)</a></li>
+<li><a id="file43" href="javascript:show('file43')">.\RWS2.hs (3)</a></li>
+<li><a id="file44" href="javascript:show('file44')">.\RankedClass.hs (10)</a></li>
+<li><a id="file45" href="javascript:show('file45')">.\Reader.hs (3)</a></li>
+<li><a id="file46" href="javascript:show('file46')">.\ReaderT.hs (5)</a></li>
+<li><a id="file47" href="javascript:show('file47')">.\ReaderTStateTStack.hs (1)</a></li>
+<li><a id="file48" href="javascript:show('file48')">.\Result.hs (1)</a></li>
+<li><a id="file49" href="javascript:show('file49')">.\SettingsMap.hs (7)</a></li>
+<li><a id="file50" href="javascript:show('file50')">.\Show.hs (2)</a></li>
+<li><a id="file51" href="javascript:show('file51')">.\ShowS.hs (2)</a></li>
+<li><a id="file52" href="javascript:show('file52')">.\ShowsPrec.hs (2)</a></li>
+<li><a id="file53" href="javascript:show('file53')">.\SmartConstructorEither.hs (3)</a></li>
+<li><a id="file54" href="javascript:show('file54')">.\StateT.hs (3)</a></li>
+<li><a id="file55" href="javascript:show('file55')">.\StateUpdates.hs (4)</a></li>
+<li><a id="file56" href="javascript:show('file56')">.\Strings.hs (1)</a></li>
+<li><a id="file57" href="javascript:show('file57')">.\SysEnv.hs (2)</a></li>
+<li><a id="file58" href="javascript:show('file58')">.\Tree.hs (1)</a></li>
+<li><a id="file59" href="javascript:show('file59')">.\Tree2.hs (2)</a></li>
+<li><a id="file60" href="javascript:show('file60')">.\TreeWriter.hs (2)</a></li>
+<li><a id="file61" href="javascript:show('file61')">.\TripleSmartConstructor.hs (1)</a></li>
+<li><a id="file62" href="javascript:show('file62')">.\TypeLevelListToValues.hs (1)</a></li>
+<li><a id="file63" href="javascript:show('file63')">.\UserMap.hs (2)</a></li>
+<li><a id="file64" href="javascript:show('file64')">.\Wrap.hs (1)</a></li>
+<li><a id="file65" href="javascript:show('file65')">.\Writer.hs (3)</a></li>
+<li><a id="file66" href="javascript:show('file66')">.\tryReadFile.hs (2)</a></li>
+</ul>
+
+</div>
+<div id="content" valign="top" width="100%">
+<p>
+    Report generated by <a href="http://community.haskell.org/~ndm/hlint/">HLint</a>
+v3.3.6
+    - a tool to suggest improvements to your Haskell code.
+</p>
+
+<div class="hint3 file0">
+ABC.hs:17:1-46: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>count</span> <span class='hs-varid'>xs</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>foldr</span> <span class='hs-varid'>f</span> <span class='hs-keyglyph'>[</span><span class='hs-layout'>(</span><span class='hs-conid'>A</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-layout'>,</span> <span class='hs-layout'>(</span><span class='hs-conid'>B</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-layout'>,</span> <span class='hs-layout'>(</span><span class='hs-conid'>C</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span> <span class='hs-varid'>xs</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>count</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>foldr</span> <span class='hs-varid'>f</span> <span class='hs-keyglyph'>[</span><span class='hs-layout'>(</span><span class='hs-conid'>A</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-layout'>,</span> <span class='hs-layout'>(</span><span class='hs-conid'>B</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-layout'>,</span> <span class='hs-layout'>(</span><span class='hs-conid'>C</span><span class='hs-layout'>,</span> <span class='hs-num'>0</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint36 file1">
+ADT.hs:3:1-49: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>DA</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DA</span> <span class='hs-layout'>{</span><span class='hs-varid'>dA</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>DA</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DA</span> <span class='hs-layout'>{</span><span class='hs-varid'>dA</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file1">
+ADT.hs:4:1-49: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>DB</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DB</span> <span class='hs-layout'>{</span><span class='hs-varid'>dB</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>DB</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DB</span> <span class='hs-layout'>{</span><span class='hs-varid'>dB</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file1">
+ADT.hs:5:1-49: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>DC</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DC</span> <span class='hs-layout'>{</span><span class='hs-varid'>dC</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>DC</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>DC</span> <span class='hs-layout'>{</span><span class='hs-varid'>dC</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint14 file2">
+Aggregate.hs:1:1-44: Warning: Unused LANGUAGE pragma<br/>
+Found<br/>
+<pre><span class='hs-comment'>{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span></pre>
+Perhaps you should remove it.<br/>
+<pre></pre>
+
+</div>
+
+<div class="hint25 file2">
+Aggregate.hs:44:24: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>Counter</span> <span class='hs-varop'>$</span> <span class='hs-varid'>total</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Counter</span> <span class='hs-varid'>total</span></pre>
+
+</div>
+
+<div class="hint15 file3">
+AppState.hs:(33,11)-(35,20): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>state</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>get</span>
+   <span class='hs-varid'>return</span> <span class='hs-varop'>$</span> <span class='hs-varid'>apN</span> <span class='hs-varid'>state</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>apN</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>get</span></pre>
+
+</div>
+
+<div class="hint25 file4">
+AppT.hs:43:11: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>right</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>right</span></pre>
+
+</div>
+
+<div class="hint25 file4">
+AppT.hs:44:11: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>left</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>left</span></pre>
+
+</div>
+
+<div class="hint18 file4">
+AppT.hs:47:14-28: Warning: Use empty<br/>
+Found<br/>
+<pre><span class='hs-conid'>Map.fromList</span> <span class='hs-conid'>[]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Map.empty</span></pre>
+
+</div>
+
+<div class="hint12 file5">
+ApplicativeLifting.hs:14:5-26: Warning: Redundant lambda<br/>
+Found<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyglyph'>\</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>return</span> <span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-varid'>b</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>return</span> <span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-varid'>b</span></pre>
+
+</div>
+
+<div class="hint12 file5">
+ApplicativeLifting.hs:22:5-28: Warning: Redundant lambda<br/>
+Found<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyglyph'>\</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-num'>2</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-num'>2</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint12 file5">
+ApplicativeLifting.hs:28:5-28: Warning: Redundant lambda<br/>
+Found<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyglyph'>\</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-num'>2</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>d</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-varop'>*</span> <span class='hs-num'>2</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file5">
+ApplicativeLifting.hs:37:1-31: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>A</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span> <span class='hs-layout'>{</span><span class='hs-varid'>runA</span> <span class='hs-keyglyph'>::</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span><span class='hs-layout'>}</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>A</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span> <span class='hs-layout'>{</span><span class='hs-varid'>runA</span> <span class='hs-keyglyph'>::</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span><span class='hs-layout'>}</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint24 file6">
+ByteString.hs:21:3-37: Suggestion: Move brackets to avoid $<br/>
+Found<br/>
+<pre><span class='hs-conid'>BL.putStrLn</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>BL.putStrLn</span> <span class='hs-varop'>$</span> <span class='hs-varid'>runPut</span> <span class='hs-layout'>(</span><span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file6">
+ByteString.hs:21:15: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>BL.putStrLn</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>BL.putStrLn</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint24 file6">
+ByteString.hs:22:21-53: Suggestion: Move brackets to avoid $<br/>
+Found<br/>
+<pre><span class='hs-conid'>BL.unpack</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>BL.unpack</span> <span class='hs-varop'>$</span> <span class='hs-varid'>runPut</span> <span class='hs-layout'>(</span><span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file6">
+ByteString.hs:22:31: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>BL.unpack</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>BL.unpack</span> <span class='hs-layout'>(</span><span class='hs-varid'>runPut</span> <span class='hs-varop'>$</span> <span class='hs-varid'>put</span> <span class='hs-varid'>triple</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file7">
+Classes.hs:(5,1)-(7,17): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>A</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span> <span class='hs-layout'>{</span><span class='hs-varid'>aTag</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Tag</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>A</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span> <span class='hs-layout'>{</span><span class='hs-varid'>aTag</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Tag</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file7">
+Classes.hs:(9,1)-(11,17): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>B</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>B</span> <span class='hs-layout'>{</span><span class='hs-varid'>bTags</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Tag</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>B</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>B</span> <span class='hs-layout'>{</span><span class='hs-varid'>bTags</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Tag</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file7">
+Classes.hs:(13,1)-(15,17): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>C</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>C</span> <span class='hs-layout'>{</span><span class='hs-varid'>cTag</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-conid'>Tag</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>C</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>C</span> <span class='hs-layout'>{</span><span class='hs-varid'>cTag</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-conid'>Tag</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint3 file7">
+Classes.hs:30:3-12: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>mk</span> <span class='hs-varid'>t</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span> <span class='hs-varid'>t</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>mk</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>A</span></pre>
+
+</div>
+
+<div class="hint26 file7">
+Classes.hs:45:29-37: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>t</span> <span class='hs-conop'>:</span> <span class='hs-layout'>(</span><span class='hs-varid'>bTags</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>t</span> <span class='hs-conop'>:</span> <span class='hs-varid'>bTags</span> <span class='hs-varid'>a</span></pre>
+
+</div>
+
+<div class="hint25 file7">
+Classes.hs:55:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Foo"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>A</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Foo"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>A</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file7">
+Classes.hs:56:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Fib"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>B</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Fib"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>B</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file7">
+Classes.hs:57:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Bar"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>C</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>mk</span> <span class='hs-str'>"Bar"</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>C</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file8">
+Classes2.hs:(11,1)-(13,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Intern</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Intern</span> <span class='hs-layout'>{</span><span class='hs-varid'>items</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Intern</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Intern</span> <span class='hs-layout'>{</span><span class='hs-varid'>items</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint24 file8">
+Classes2.hs:19:16-51: Suggestion: Move brackets to avoid $<br/>
+Found<br/>
+<pre><span class='hs-str'>"foo"</span> <span class='hs-varop'>`item`</span> <span class='hs-layout'>(</span><span class='hs-conid'>Wrap</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Intern</span> <span class='hs-keyglyph'>[</span><span class='hs-str'>"bar"</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-str'>"foo"</span> <span class='hs-varop'>`item`</span> <span class='hs-conid'>Wrap</span> <span class='hs-layout'>(</span><span class='hs-conid'>Intern</span> <span class='hs-keyglyph'>[</span><span class='hs-str'>"bar"</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint32 file9">
+ComposeCase.hs:(7,4)-(9,22): Suggestion: Use if<br/>
+Found<br/>
+<pre><span class='hs-keyword'>case</span> <span class='hs-varid'>a</span> <span class='hs-keyword'>of</span>
+  <span class='hs-conid'>True</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>reverse</span>
+  <span class='hs-conid'>False</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-varid'>a</span> <span class='hs-keyword'>then</span> <span class='hs-varid'>reverse</span> <span class='hs-keyword'>else</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span></pre>
+
+</div>
+
+<div class="hint32 file9">
+ComposeCase.hs:(10,4)-(12,32): Suggestion: Use if<br/>
+Found<br/>
+<pre><span class='hs-keyword'>case</span> <span class='hs-varid'>b</span> <span class='hs-keyword'>of</span>
+  <span class='hs-conid'>True</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-layout'>(</span><span class='hs-varop'>++</span><span class='hs-layout'>)</span> <span class='hs-str'>"asdds"</span>
+  <span class='hs-conid'>False</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-layout'>(</span><span class='hs-varop'>++</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span> <span class='hs-chr'>'A'</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-varid'>b</span> <span class='hs-keyword'>then</span> <span class='hs-layout'>(</span><span class='hs-varop'>++</span><span class='hs-layout'>)</span> <span class='hs-str'>"asdds"</span> <span class='hs-keyword'>else</span> <span class='hs-layout'>(</span><span class='hs-varop'>++</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span> <span class='hs-chr'>'A'</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file10">
+Default.hs:(3,1)-(5,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>State</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>State</span> <span class='hs-layout'>{</span><span class='hs-varid'>unState</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>State</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>State</span> <span class='hs-layout'>{</span><span class='hs-varid'>unState</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint25 file10">
+Default.hs:17:14: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>defaultState</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>defaultState</span></pre>
+
+</div>
+
+<div class="hint11 file11">
+DeriveFunctor.hs:26:31-39: Warning: Redundant id<br/>
+Found<br/>
+<pre><span class='hs-definition'>id</span> <span class='hs-varop'>.</span> <span class='hs-conid'>Just</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Just</span></pre>
+
+</div>
+
+<div class="hint26 file11">
+DeriveFunctor.hs:31:8-16: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>map</span> <span class='hs-varid'>chr</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint4 file11">
+DeriveFunctor.hs:(31,8)-(33,17): Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span> <span class='hs-varop'>.</span> <span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint4 file11">
+DeriveFunctor.hs:(31,8)-(34,21): Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>.</span> <span class='hs-varid'>map</span> <span class='hs-varid'>ord</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint4 file11">
+DeriveFunctor.hs:(31,8)-(35,39): Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>intercalate</span> <span class='hs-str'>""</span> <span class='hs-varop'>.</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>.</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span>
+   <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>intercalate</span> <span class='hs-str'>""</span> <span class='hs-varop'>.</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint4 file11">
+DeriveFunctor.hs:(31,8)-(36,22): Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>intercalate</span> <span class='hs-str'>""</span> <span class='hs-varop'>.</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>initialWrapper</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span>
+   <span class='hs-varop'>.</span> <span class='hs-varid'>intercalate</span> <span class='hs-str'>""</span> <span class='hs-varop'>.</span> <span class='hs-varid'>replicate</span> <span class='hs-num'>10</span>
+   <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>initialWrapper</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file11">
+DeriveFunctor.hs:32:9-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file11">
+DeriveFunctor.hs:33:9-17: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>ord</span></pre>
+
+</div>
+
+<div class="hint26 file11">
+DeriveFunctor.hs:34:9-21: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>chr</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varop'>+</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>ord</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span></pre>
+
+</div>
+
+<div class="hint36 file12">
+DerivingVia.hs:(11,1)-(13,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Attributes</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Attributes</span> <span class='hs-layout'>{</span><span class='hs-varid'>attrs</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Attribute</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Attributes</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Attributes</span> <span class='hs-layout'>{</span><span class='hs-varid'>attrs</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Attribute</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file12">
+DerivingVia.hs:(15,1)-(16,47): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>AttributeMap</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>AttributeMap</span> <span class='hs-layout'>(</span><span class='hs-conid'>Map</span> <span class='hs-conid'>Identifier</span> <span class='hs-conid'>Attribute</span><span class='hs-layout'>)</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Semigroup</span><span class='hs-layout'>,</span> <span class='hs-conid'>Monoid</span><span class='hs-layout'>)</span> <span class='hs-varid'>via</span> <span class='hs-conid'>AttributeMap</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>AttributeMap</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>AttributeMap</span> <span class='hs-layout'>(</span><span class='hs-conid'>Map</span> <span class='hs-conid'>Identifier</span> <span class='hs-conid'>Attribute</span><span class='hs-layout'>)</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Semigroup</span><span class='hs-layout'>,</span> <span class='hs-conid'>Monoid</span><span class='hs-layout'>)</span> <span class='hs-varid'>via</span> <span class='hs-conid'>AttributeMap</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file12">
+DerivingVia.hs:(28,1)-(30,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Attribute</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Attribute</span> <span class='hs-layout'>{</span><span class='hs-varid'>attrId</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Identifier</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Attribute</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Attribute</span> <span class='hs-layout'>{</span><span class='hs-varid'>attrId</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Identifier</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint26 file13">
+EDSL.hs:13:15-34: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>unEDSL</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>WriterT</span> <span class='hs-conid'>Store</span> <span class='hs-conid'>IO</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>unEDSL</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>WriterT</span> <span class='hs-conid'>Store</span> <span class='hs-conid'>IO</span> <span class='hs-varid'>a</span></pre>
+
+</div>
+
+<div class="hint34 file14">
+Ex01.hs:(12,3)-(14,28): Suggestion: Use let<br/>
+Found<br/>
+<pre><span class='hs-definition'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>pure</span>
+       <span class='hs-varop'>$</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>21</span> <span class='hs-keyword'>of</span>
+           <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span> <span class='hs-varid'>x</span>
+           <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toLower</span> <span class='hs-varid'>x</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>let</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>21</span> <span class='hs-keyword'>of</span>
+          <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toUpper</span> <span class='hs-varid'>x</span>
+          <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>toLower</span> <span class='hs-varid'>x</span></pre>
+
+</div>
+
+<div class="hint34 file14">
+Ex01.hs:(16,3)-(18,16): Suggestion: Use let<br/>
+Found<br/>
+<pre><span class='hs-definition'>y</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>pure</span>
+       <span class='hs-varop'>$</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>42</span> <span class='hs-keyword'>of</span>
+           <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>reverse</span> <span class='hs-varid'>x</span>
+           <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>x</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>let</span> <span class='hs-varid'>y</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>42</span> <span class='hs-keyword'>of</span>
+          <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>reverse</span> <span class='hs-varid'>x</span>
+          <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>x</span></pre>
+
+</div>
+
+<div class="hint34 file14">
+Ex01.hs:(20,3)-(22,21): Suggestion: Use let<br/>
+Found<br/>
+<pre><span class='hs-definition'>z</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>pure</span>
+       <span class='hs-varop'>$</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>1337</span> <span class='hs-keyword'>of</span>
+           <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-str'>"Derp"</span>
+           <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-str'>"Damn"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>let</span> <span class='hs-varid'>z</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>compute</span> <span class='hs-num'>1337</span> <span class='hs-keyword'>of</span>
+          <span class='hs-conid'>Left</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-str'>"Derp"</span>
+          <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-str'>"Damn"</span></pre>
+
+</div>
+
+<div class="hint2 file15">
+Expr.hs:22:1: Error: Parse error: possibly incorrect indentation or mismatched brackets<br/>
+Found<br/>
+<pre>                <span class='hs-layout'>(</span><span class='hs-conid'>Literal</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span>
+                <span class='hs-layout'>(</span><span class='hs-conid'>Li</span>
+<span class='hs-varop'>&gt;</span> 
+</pre>
+
+</div>
+
+<div class="hint15 file16">
+Free.hs:(85,30)-(87,19): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>s</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>getLine</span>
+   <span class='hs-varid'>pure</span> <span class='hs-varop'>$</span> <span class='hs-varid'>next</span> <span class='hs-varid'>s</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>next</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getLine</span></pre>
+
+</div>
+
+<div class="hint15 file16">
+Free.hs:(88,47)-(91,19): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>putStr</span> <span class='hs-varid'>prefix</span>
+   <span class='hs-varid'>s</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>getLine</span>
+   <span class='hs-varid'>pure</span> <span class='hs-varop'>$</span> <span class='hs-varid'>next</span> <span class='hs-varid'>s</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>putStr</span> <span class='hs-varid'>prefix</span>
+   <span class='hs-varid'>next</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getLine</span></pre>
+
+</div>
+
+<div class="hint15 file16">
+Free.hs:(98,25)-(100,19): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>s</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>getLine</span>
+   <span class='hs-varid'>pure</span> <span class='hs-varop'>$</span> <span class='hs-varid'>next</span> <span class='hs-varid'>s</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>next</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getLine</span></pre>
+
+</div>
+
+<div class="hint15 file16">
+Free.hs:(101,42)-(104,19): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>putStr</span> <span class='hs-varid'>prefix</span>
+   <span class='hs-varid'>s</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>getLine</span>
+   <span class='hs-varid'>pure</span> <span class='hs-varop'>$</span> <span class='hs-varid'>next</span> <span class='hs-varid'>s</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>putStr</span> <span class='hs-varid'>prefix</span>
+   <span class='hs-varid'>next</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getLine</span></pre>
+
+</div>
+
+<div class="hint10 file17">
+FromEnv.hs:29:7-37: Warning: Redundant flip<br/>
+Found<br/>
+<pre><span class='hs-definition'>flip</span> <span class='hs-varid'>runReaderT</span> <span class='hs-layout'>(</span><span class='hs-conid'>Env</span> <span class='hs-conid'>[]</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varid'>app</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>runReaderT</span> <span class='hs-varid'>app</span> <span class='hs-layout'>(</span><span class='hs-conid'>Env</span> <span class='hs-conid'>[]</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint4 file17">
+FromEnv.hs:(32,7)-(33,68): Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-conid'>Env</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>wordsWhen</span> <span class='hs-layout'>(</span><span class='hs-varop'>==</span> <span class='hs-chr'>':'</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>fromEnvOrDefault</span> <span class='hs-str'>"PATH_DEFAULT"</span> <span class='hs-str'>"PATH"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Env</span> <span class='hs-varop'>.</span> <span class='hs-varid'>wordsWhen</span> <span class='hs-layout'>(</span><span class='hs-varop'>==</span> <span class='hs-chr'>':'</span><span class='hs-layout'>)</span>
+   <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>fromEnvOrDefault</span> <span class='hs-str'>"PATH_DEFAULT"</span> <span class='hs-str'>"PATH"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file17">
+FromEnv.hs:33:7-25: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-conid'>Env</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>wordsWhen</span> <span class='hs-layout'>(</span><span class='hs-varop'>==</span> <span class='hs-chr'>':'</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Env</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>wordsWhen</span> <span class='hs-layout'>(</span><span class='hs-varop'>==</span> <span class='hs-chr'>':'</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file18">
+GetArgs.hs:12:1-60: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>OptionParseError</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UnknownOption</span> <span class='hs-conid'>String</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>OptionParseError</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UnknownOption</span> <span class='hs-conid'>String</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint3 file18">
+GetArgs.hs:33:1-55: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>parseArgs</span> <span class='hs-varid'>args</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>foldr</span> <span class='hs-varid'>applyOptions</span> <span class='hs-varid'>defaultOptions</span> <span class='hs-varid'>args</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>parseArgs</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>foldr</span> <span class='hs-varid'>applyOptions</span> <span class='hs-varid'>defaultOptions</span></pre>
+
+</div>
+
+<div class="hint4 file18">
+GetArgs.hs:43:11-55: Warning: Functor law<br/>
+Found<br/>
+<pre><span class='hs-definition'>normalizeArgs</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>withDefaultArgs</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getArgs</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>normalizeArgs</span> <span class='hs-varop'>.</span> <span class='hs-varid'>withDefaultArgs</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getArgs</span></pre>
+
+</div>
+
+<div class="hint36 file19">
+HasParams.hs:(3,1)-(5,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Foo</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Foo</span> <span class='hs-layout'>{</span><span class='hs-varid'>fooParams</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Param</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Foo</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Foo</span> <span class='hs-layout'>{</span><span class='hs-varid'>fooParams</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Param</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file19">
+HasParams.hs:(7,1)-(9,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>BarMeta</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>BarMeta</span> <span class='hs-layout'>{</span><span class='hs-varid'>bmParams</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Param</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>BarMeta</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>BarMeta</span> <span class='hs-layout'>{</span><span class='hs-varid'>bmParams</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Param</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file19">
+HasParams.hs:(11,1)-(13,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Bar</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Bar</span> <span class='hs-layout'>{</span><span class='hs-varid'>barMeta</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>BarMeta</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Bar</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Bar</span> <span class='hs-layout'>{</span><span class='hs-varid'>barMeta</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>BarMeta</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file19">
+HasParams.hs:(21,1)-(23,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Param</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Param</span> <span class='hs-layout'>{</span><span class='hs-varid'>pValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Param</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Param</span> <span class='hs-layout'>{</span><span class='hs-varid'>pValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file20">
+ItemList.hs:(8,1)-(10,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>ItemMeta</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>ItemMeta</span> <span class='hs-layout'>{</span><span class='hs-varid'>itemMetaQuantity</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>ItemMeta</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>ItemMeta</span> <span class='hs-layout'>{</span><span class='hs-varid'>itemMetaQuantity</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint25 file20">
+ItemList.hs:28:21: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>ItemInfo</span> <span class='hs-varid'>s</span> <span class='hs-layout'>(</span><span class='hs-varid'>execItemMetaM</span> <span class='hs-varid'>metaM</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>ItemInfo</span> <span class='hs-varid'>s</span> <span class='hs-layout'>(</span><span class='hs-varid'>execItemMetaM</span> <span class='hs-varid'>metaM</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint25 file20">
+ItemList.hs:31:16: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>ItemInfo</span> <span class='hs-varid'>s</span> <span class='hs-varid'>defaultItemMeta</span><span class='hs-keyglyph'>]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>ItemInfo</span> <span class='hs-varid'>s</span> <span class='hs-varid'>defaultItemMeta</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint25 file21">
+LangCodes.hs:39:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>de</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>de</span></pre>
+
+</div>
+
+<div class="hint25 file21">
+LangCodes.hs:40:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>en</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>en</span></pre>
+
+</div>
+
+<div class="hint25 file21">
+LangCodes.hs:45:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>fromLangCode</span> <span class='hs-conid'>DE</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Lang</span> <span class='hs-conid'>DE</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>fromLangCode</span> <span class='hs-conid'>DE</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Lang</span> <span class='hs-conid'>DE</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file21">
+LangCodes.hs:46:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>fromLangCode</span> <span class='hs-conid'>EN</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Lang</span> <span class='hs-conid'>EN</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>fromLangCode</span> <span class='hs-conid'>EN</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Lang</span> <span class='hs-conid'>EN</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint15 file22">
+LiftM.hs:(12,14)-(14,14): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mx</span>
+   <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>f</span> <span class='hs-varid'>x</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>f</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>mx</span></pre>
+
+</div>
+
+<div class="hint15 file22">
+LiftM.hs:(22,18)-(25,16): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mx</span>
+   <span class='hs-varid'>y</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>my</span>
+   <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>f</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mx</span>
+   <span class='hs-varid'>f</span> <span class='hs-varid'>x</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>my</span></pre>
+
+</div>
+
+<div class="hint15 file22">
+LiftM.hs:(34,21)-(38,18): Warning: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mx</span>
+   <span class='hs-varid'>y</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>my</span>
+   <span class='hs-varid'>z</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mz</span>
+   <span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>f</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>mx</span>
+   <span class='hs-varid'>y</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>my</span>
+   <span class='hs-varid'>f</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>mz</span></pre>
+
+</div>
+
+<div class="hint31 file23">
+List.hs:(14,1)-(15,34): Suggestion: Use foldr<br/>
+Found<br/>
+<pre><span class='hs-definition'>toList</span> <span class='hs-conid'>[]</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Nil</span>
+<span class='hs-definition'>toList</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-conop'>:</span> <span class='hs-varid'>xs</span><span class='hs-layout'>)</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Cons</span> <span class='hs-varid'>x</span> <span class='hs-layout'>(</span><span class='hs-varid'>toList</span> <span class='hs-varid'>xs</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>toList</span> <span class='hs-varid'>xs</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>foldr</span> <span class='hs-conid'>Cons</span> <span class='hs-conid'>Nil</span> <span class='hs-varid'>xs</span></pre>
+
+</div>
+
+<div class="hint20 file24">
+Loop.hs:12:19-31: Warning: Use gets<br/>
+Found<br/>
+<pre><span class='hs-sel'>_quit</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>get</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>gets</span> <span class='hs-sel'>_quit</span></pre>
+
+</div>
+
+<div class="hint20 file24">
+Loop.hs:13:24-37: Warning: Use gets<br/>
+Found<br/>
+<pre><span class='hs-sel'>_quiet</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>get</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>gets</span> <span class='hs-sel'>_quiet</span></pre>
+
+</div>
+
+<div class="hint25 file24">
+Loop.hs:19:20: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>lift</span> <span class='hs-varop'>$</span> <span class='hs-varid'>getLine</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>lift</span> <span class='hs-varid'>getLine</span></pre>
+
+</div>
+
+<div class="hint27 file25">
+Maps.hs:(16,5)-(18,24): Suggestion: Replace case with maybe<br/>
+Found<br/>
+<pre><span class='hs-keyword'>case</span> <span class='hs-conid'>Map.lookup</span> <span class='hs-varid'>k</span> <span class='hs-varid'>s</span> <span class='hs-keyword'>of</span>
+  <span class='hs-conid'>Nothing</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span>
+  <span class='hs-conid'>Just</span> <span class='hs-varid'>v</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Just</span> <span class='hs-varid'>v</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>maybe</span> <span class='hs-conid'>Nothing</span> <span class='hs-conid'>Just</span> <span class='hs-layout'>(</span><span class='hs-conid'>Map.lookup</span> <span class='hs-varid'>k</span> <span class='hs-varid'>s</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint23 file25">
+Maps.hs:25:5-25: Warning: Use print<br/>
+Found<br/>
+<pre><span class='hs-definition'>putStrLn</span> <span class='hs-varop'>$</span> <span class='hs-varid'>show</span> <span class='hs-varid'>state</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>state</span></pre>
+
+</div>
+
+<div class="hint36 file26">
+MiniDSL.hs:(12,1)-(13,15): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>PropWrap</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>PropWrap</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Props</span><span class='hs-keyglyph'>]</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Eq</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>PropWrap</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>PropWrap</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Props</span><span class='hs-keyglyph'>]</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Eq</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file26">
+MiniDSL.hs:32:1-31: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Mod</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Mod</span> <span class='hs-layout'>(</span><span class='hs-conid'>Props</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Props</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Mod</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Mod</span> <span class='hs-layout'>(</span><span class='hs-conid'>Props</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Props</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file27">
+Mod.hs:6:1-25: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Mod</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Mod</span> <span class='hs-layout'>(</span><span class='hs-varid'>a</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Mod</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Mod</span> <span class='hs-layout'>(</span><span class='hs-varid'>a</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint3 file27">
+Mod.hs:9:1-24: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>applyMod</span> <span class='hs-layout'>(</span><span class='hs-conid'>Mod</span> <span class='hs-varid'>f</span><span class='hs-layout'>)</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>f</span> <span class='hs-varid'>x</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>applyMod</span> <span class='hs-layout'>(</span><span class='hs-conid'>Mod</span> <span class='hs-varid'>f</span><span class='hs-layout'>)</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>f</span></pre>
+
+</div>
+
+<div class="hint36 file28">
+ModuleParser.hs:(53,1)-(54,21): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Module</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Module</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Token</span><span class='hs-keyglyph'>]</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Module</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Module</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Token</span><span class='hs-keyglyph'>]</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint9 file28">
+ModuleParser.hs:56:29-36: Warning: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Module</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Module</span></pre>
+
+</div>
+
+<div class="hint36 file29">
+MonadStack.hs:(4,1)-(6,21): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Ctx</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Ctx</span> <span class='hs-layout'>{</span><span class='hs-varid'>unCtx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Ctx</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Ctx</span> <span class='hs-layout'>{</span><span class='hs-varid'>unCtx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint20 file29">
+MonadStack.hs:21:10-22: Warning: Use gets<br/>
+Found<br/>
+<pre><span class='hs-definition'>unCtx</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>get</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>gets</span> <span class='hs-varid'>unCtx</span></pre>
+
+</div>
+
+<div class="hint25 file29">
+MonadStack.hs:33:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file29">
+MonadStack.hs:33:11-21: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span></pre>
+
+</div>
+
+<div class="hint25 file29">
+MonadStack.hs:37:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file29">
+MonadStack.hs:37:11-21: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>put</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Ctx</span> <span class='hs-str'>"Foo"</span></pre>
+
+</div>
+
+<div class="hint36 file30">
+MonoidFoldMap.hs:(5,1)-(7,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Record</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Record</span> <span class='hs-layout'>{</span><span class='hs-varid'>rAmout</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Record</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Record</span> <span class='hs-layout'>{</span><span class='hs-varid'>rAmout</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint24 file31">
+Mtl.hs:76:3-65: Suggestion: Move brackets to avoid $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>evalM</span> <span class='hs-varop'>$</span> <span class='hs-varid'>m</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-layout'>(</span><span class='hs-conid'>()</span><span class='hs-layout'>,</span> <span class='hs-conid'>Set</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>evalM</span> <span class='hs-layout'>(</span><span class='hs-varid'>m</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-layout'>(</span><span class='hs-conid'>()</span><span class='hs-layout'>,</span> <span class='hs-conid'>Set</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint25 file31">
+Mtl.hs:76:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>evalM</span> <span class='hs-varop'>$</span> <span class='hs-varid'>m</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-layout'>(</span><span class='hs-conid'>()</span><span class='hs-layout'>,</span> <span class='hs-conid'>Set</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>evalM</span> <span class='hs-varop'>$</span> <span class='hs-varid'>m</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Maybe</span> <span class='hs-layout'>(</span><span class='hs-conid'>()</span><span class='hs-layout'>,</span> <span class='hs-conid'>Set</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint30 file31">
+Mtl.hs:77:24-36: Suggestion: Use const<br/>
+Found<br/>
+<pre><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Nothing</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>const</span> <span class='hs-conid'>Nothing</span></pre>
+
+</div>
+
+<div class="hint8 file31">
+Mtl.hs:78:3-32: Warning: Redundant &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>=&lt;&lt;</span> <span class='hs-varid'>snd</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>runWriterT</span> <span class='hs-varid'>w</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>.</span> <span class='hs-varid'>snd</span> <span class='hs-varop'>=&lt;&lt;</span> <span class='hs-varid'>runWriterT</span> <span class='hs-varid'>w</span></pre>
+
+</div>
+
+<div class="hint36 file32">
+NestedMonoids.hs:(3,1)-(5,19): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>FieldSet</span> <span class='hs-varid'>a</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>FieldSet</span> <span class='hs-layout'>{</span><span class='hs-varid'>fields</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-varid'>a</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>FieldSet</span> <span class='hs-varid'>a</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>FieldSet</span> <span class='hs-layout'>{</span><span class='hs-varid'>fields</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-varid'>a</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint6 file32">
+NestedMonoids.hs:(54,11)-(63,22): Warning: Monoid law, left identity<br/>
+Found<br/>
+<pre><span class='hs-definition'>mempty</span>
+  <span class='hs-varop'>&lt;&gt;</span>
+    <span class='hs-varid'>addFieldA</span> <span class='hs-num'>1</span>
+      <span class='hs-varop'>&lt;&gt;</span>
+        <span class='hs-varid'>addFieldA</span> <span class='hs-num'>2</span>
+          <span class='hs-varop'>&lt;&gt;</span>
+            <span class='hs-varid'>addFieldA</span> <span class='hs-num'>3</span>
+              <span class='hs-varop'>&lt;&gt;</span>
+                <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Foo"</span>
+                  <span class='hs-varop'>&lt;&gt;</span>
+                    <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Fib"</span>
+                      <span class='hs-varop'>&lt;&gt;</span>
+                        <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Bar"</span>
+                          <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>True</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>True</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>False</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>addFieldA</span> <span class='hs-num'>1</span>
+   <span class='hs-varop'>&lt;&gt;</span>
+     <span class='hs-varid'>addFieldA</span> <span class='hs-num'>2</span>
+       <span class='hs-varop'>&lt;&gt;</span>
+         <span class='hs-varid'>addFieldA</span> <span class='hs-num'>3</span>
+           <span class='hs-varop'>&lt;&gt;</span>
+             <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Foo"</span>
+               <span class='hs-varop'>&lt;&gt;</span>
+                 <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Fib"</span>
+                   <span class='hs-varop'>&lt;&gt;</span>
+                     <span class='hs-varid'>addFieldB</span> <span class='hs-str'>"Bar"</span>
+                       <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>True</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>True</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>addFieldC</span> <span class='hs-conid'>False</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file33">
+NewtypeDeriving.hs:(3,1)-(4,27): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Record</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Record</span> <span class='hs-layout'>{</span><span class='hs-varid'>recordValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Record</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Record</span> <span class='hs-layout'>{</span><span class='hs-varid'>recordValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint25 file33">
+NewtypeDeriving.hs:29:19: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>unInCache</span> <span class='hs-varop'>$</span> <span class='hs-varid'>fakeRecords</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>unInCache</span> <span class='hs-varid'>fakeRecords</span></pre>
+
+</div>
+
+<div class="hint23 file33">
+NewtypeDeriving.hs:29:39-53: Warning: Use print<br/>
+Found<br/>
+<pre><span class='hs-definition'>putStrLn</span> <span class='hs-varop'>.</span> <span class='hs-varid'>show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span></pre>
+
+</div>
+
+<div class="hint1 file34">
+OptParser.hs:45:1-6: Error: Parse error: on input `import&#39;<br/>
+Found<br/>
+<pre>    <span class='hs-keyword'>in</span> <span class='hs-varid'>print</span> <span class='hs-varid'>outputmodule</span> <span class='hs-conid'>Main</span> <span class='hs-layout'>(</span><span class='hs-varid'>main</span><span class='hs-layout'>)</span> <span class='hs-keyword'>where</span>
+  
+<span class='hs-varop'>&gt;</span> <span class='hs-keyword'>import</span> <span class='hs-conid'>Data.Char</span> <span class='hs-layout'>(</span><span class='hs-varid'>toUpper</span><span class='hs-layout'>)</span>
+  <span class='hs-keyword'>import</span> <span class='hs-conid'>Data.Monoid</span> <span class='hs-layout'>(</span><span class='hs-conid'>Endo</span><span class='hs-layout'>(</span><span class='hs-keyglyph'>..</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span>
+</pre>
+
+</div>
+
+<div class="hint35 file35">
+ParseArgs.hs:15:10-24: Suggestion: Use list literal pattern<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-str'>"help"</span> <span class='hs-conop'>:</span> <span class='hs-varid'>cmd</span> <span class='hs-conop'>:</span> <span class='hs-conid'>[]</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyglyph'>[</span><span class='hs-str'>"help"</span><span class='hs-layout'>,</span> <span class='hs-varid'>cmd</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint25 file35">
+ParseArgs.hs:16:30: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Version</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-conid'>Version</span></pre>
+
+</div>
+
+<div class="hint25 file35">
+ParseArgs.hs:17:26: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>New</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-conid'>New</span></pre>
+
+</div>
+
+<div class="hint25 file35">
+ParseArgs.hs:18:27: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Init</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Right</span> <span class='hs-conid'>Init</span></pre>
+
+</div>
+
+<div class="hint35 file35">
+ParseArgs.hs:24:3-17: Suggestion: Use list literal pattern<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-str'>"help"</span> <span class='hs-conop'>:</span> <span class='hs-varid'>cmd</span> <span class='hs-conop'>:</span> <span class='hs-conid'>[]</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyglyph'>[</span><span class='hs-str'>"help"</span><span class='hs-layout'>,</span> <span class='hs-varid'>cmd</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint35 file35">
+ParseArgs.hs:25:3-21: Suggestion: Use list literal pattern<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-str'>"build"</span> <span class='hs-conop'>:</span> <span class='hs-varid'>target</span> <span class='hs-conop'>:</span> <span class='hs-conid'>[]</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyglyph'>[</span><span class='hs-str'>"build"</span><span class='hs-layout'>,</span> <span class='hs-varid'>target</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint36 file36">
+ParsecDemo.hs:46:1-51: Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>FeatureW</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>FeatureW</span> <span class='hs-conid'>String</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>FeatureW</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>FeatureW</span> <span class='hs-conid'>String</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint13 file36">
+ParsecDemo.hs:(67,37)-(69,16): Warning: Redundant return<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>token</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-conid'>P.many</span> <span class='hs-conid'>P.anyChar</span>
+   <span class='hs-varid'>return</span> <span class='hs-varid'>token</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-conid'>P.many</span> <span class='hs-conid'>P.anyChar</span></pre>
+
+</div>
+
+<div class="hint14 file37">
+Persist.hs:2:1-37: Warning: Unused LANGUAGE pragma<br/>
+Found<br/>
+<pre><span class='hs-comment'>{-# LANGUAGE TypeSynonymInstances #-}</span></pre>
+Perhaps you should remove it.<br/>
+<pre></pre>
+<span class='note'>Note: Extension TypeSynonymInstances is implied by FlexibleInstances</span>
+</div>
+
+<div class="hint36 file38">
+PluginMap.hs:(9,1)-(11,19): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Plugin</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Plugin</span> <span class='hs-layout'>{</span><span class='hs-varid'>pluginID</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Identifier</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Plugin</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Plugin</span> <span class='hs-layout'>{</span><span class='hs-varid'>pluginID</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Identifier</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint25 file38">
+PluginMap.hs:32:12: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varop'>$</span> <span class='hs-varid'>pluginA</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varid'>pluginA</span></pre>
+
+</div>
+
+<div class="hint25 file38">
+PluginMap.hs:33:12: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varop'>$</span> <span class='hs-varid'>pluginB</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varid'>pluginB</span></pre>
+
+</div>
+
+<div class="hint25 file38">
+PluginMap.hs:34:12: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varop'>$</span> <span class='hs-varid'>pluginC</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>register</span> <span class='hs-varid'>pluginC</span></pre>
+
+</div>
+
+<div class="hint30 file39">
+Predicate.hs:15:21-30: Suggestion: Use const<br/>
+Found<br/>
+<pre><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>True</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>const</span> <span class='hs-conid'>True</span></pre>
+
+</div>
+
+<div class="hint30 file39">
+Predicate.hs:18:21-31: Suggestion: Use const<br/>
+Found<br/>
+<pre><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>False</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>const</span> <span class='hs-conid'>False</span></pre>
+
+</div>
+
+<div class="hint30 file39">
+Predicate.hs:21:21-30: Suggestion: Use const<br/>
+Found<br/>
+<pre><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>True</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>const</span> <span class='hs-conid'>True</span></pre>
+
+</div>
+
+<div class="hint26 file40">
+Pretty.hs:8:14-31: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span></pre>
+
+</div>
+
+<div class="hint33 file41">
+PrimitiveParser.hs:16:5-26: Suggestion: Use infix<br/>
+Found<br/>
+<pre><span class='hs-definition'>isPrefixOf</span> <span class='hs-str'>"RUN"</span> <span class='hs-varid'>input</span></pre>
+Perhaps<br/>
+<pre><span class='hs-str'>"RUN"</span> <span class='hs-varop'>`isPrefixOf`</span> <span class='hs-varid'>input</span></pre>
+
+</div>
+
+<div class="hint33 file41">
+PrimitiveParser.hs:18:5-26: Suggestion: Use infix<br/>
+Found<br/>
+<pre><span class='hs-definition'>isPrefixOf</span> <span class='hs-str'>"LOG"</span> <span class='hs-varid'>input</span></pre>
+Perhaps<br/>
+<pre><span class='hs-str'>"LOG"</span> <span class='hs-varop'>`isPrefixOf`</span> <span class='hs-varid'>input</span></pre>
+
+</div>
+
+<div class="hint17 file42">
+RIO.hs:39:15-31: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-sel'>_rootPath</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-sel'>_rootPath</span></pre>
+
+</div>
+
+<div class="hint17 file42">
+RIO.hs:42:17-35: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-sel'>_connection</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-sel'>_connection</span></pre>
+
+</div>
+
+<div class="hint36 file43">
+RWS2.hs:(12,1)-(13,17): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>WrapStore</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>WrapStore</span> <span class='hs-layout'>(</span><span class='hs-conid'>Map</span> <span class='hs-conid'>String</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>WrapStore</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>WrapStore</span> <span class='hs-layout'>(</span><span class='hs-conid'>Map</span> <span class='hs-conid'>String</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint9 file43">
+RWS2.hs:20:22-32: Warning: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Map.empty</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Map.empty</span></pre>
+
+</div>
+
+<div class="hint36 file43">
+RWS2.hs:(22,1)-(24,19): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>WrapState</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>WrapState</span> <span class='hs-layout'>{</span><span class='hs-varid'>stateValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>WrapState</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>WrapState</span> <span class='hs-layout'>{</span><span class='hs-varid'>stateValue</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:45:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>X</span> <span class='hs-conid'>A</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>X</span> <span class='hs-conid'>A</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:46:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>X</span> <span class='hs-conid'>B</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>X</span> <span class='hs-conid'>B</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:47:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>X</span> <span class='hs-conid'>C</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>X</span> <span class='hs-conid'>C</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:48:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Y</span> <span class='hs-conid'>D</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Y</span> <span class='hs-conid'>D</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:49:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Y</span> <span class='hs-conid'>E</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Y</span> <span class='hs-conid'>E</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:50:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Y</span> <span class='hs-conid'>F</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Y</span> <span class='hs-conid'>F</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:51:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Z</span> <span class='hs-conid'>G</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Z</span> <span class='hs-conid'>G</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:52:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Z</span> <span class='hs-conid'>H</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Z</span> <span class='hs-conid'>H</span></pre>
+
+</div>
+
+<div class="hint26 file44">
+RankedClass.hs:53:14-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>Z</span> <span class='hs-conid'>I</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Z</span> <span class='hs-conid'>I</span></pre>
+
+</div>
+
+<div class="hint25 file44">
+RankedClass.hs:56:14: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toRank</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>0</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>8</span><span class='hs-keyglyph'>]</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>XYZ</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>toRank</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>0</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>8</span><span class='hs-keyglyph'>]</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>XYZ</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint17 file45">
+Reader.hs:21:11-22: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-definition'>envA</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-varid'>envA</span></pre>
+
+</div>
+
+<div class="hint17 file45">
+Reader.hs:24:11-22: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-definition'>envB</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-varid'>envB</span></pre>
+
+</div>
+
+<div class="hint17 file45">
+Reader.hs:27:11-22: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-definition'>envC</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-varid'>envC</span></pre>
+
+</div>
+
+<div class="hint36 file46">
+ReaderT.hs:(7,1)-(9,3): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Context</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Context</span> <span class='hs-layout'>{</span><span class='hs-varid'>ctxName</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Context</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Context</span> <span class='hs-layout'>{</span><span class='hs-varid'>ctxName</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint17 file46">
+ReaderT.hs:14:14-28: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-definition'>ctxName</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-varid'>ctxName</span></pre>
+
+</div>
+
+<div class="hint13 file46">
+ReaderT.hs:(24,16)-(26,15): Warning: Redundant return<br/>
+Found<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>name</span> <span class='hs-keyglyph'>&lt;-</span> <span class='hs-varid'>ctxName</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span>
+   <span class='hs-varid'>return</span> <span class='hs-varop'>$</span> <span class='hs-varid'>name</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>do</span> <span class='hs-varid'>ctxName</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+
+</div>
+
+<div class="hint17 file46">
+ReaderT.hs:25:11-25: Warning: Use asks<br/>
+Found<br/>
+<pre><span class='hs-definition'>ctxName</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>ask</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>asks</span> <span class='hs-varid'>ctxName</span></pre>
+
+</div>
+
+<div class="hint25 file46">
+ReaderT.hs:26:10: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>return</span> <span class='hs-varop'>$</span> <span class='hs-varid'>name</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>return</span> <span class='hs-varid'>name</span></pre>
+
+</div>
+
+<div class="hint26 file47">
+ReaderTStateTStack.hs:12:15-54: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>unAppT</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>ReaderT</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span> <span class='hs-layout'>(</span><span class='hs-conid'>StateT</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span> <span class='hs-varid'>m</span><span class='hs-layout'>)</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>unAppT</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>ReaderT</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span> <span class='hs-layout'>(</span><span class='hs-conid'>StateT</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span> <span class='hs-varid'>m</span><span class='hs-layout'>)</span> <span class='hs-varid'>a</span></pre>
+
+</div>
+
+<div class="hint25 file48">
+Result.hs:40:14: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>simulate</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>simulate</span></pre>
+
+</div>
+
+<div class="hint36 file49">
+SettingsMap.hs:(17,1)-(19,19): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>SettingsM</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>SettingsM</span> <span class='hs-layout'>{</span><span class='hs-varid'>unSettingsM</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-layout'>(</span><span class='hs-conid'>String</span><span class='hs-layout'>,</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>SettingsM</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>SettingsM</span> <span class='hs-layout'>{</span><span class='hs-varid'>unSettingsM</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-layout'>(</span><span class='hs-conid'>String</span><span class='hs-layout'>,</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint26 file49">
+SettingsMap.hs:47:17-37: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withVersion</span> <span class='hs-str'>"0.1.0"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>withName</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptyOptions</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>withVersion</span> <span class='hs-str'>"0.1.0"</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>withName</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptyOptions</span></pre>
+
+</div>
+
+<div class="hint26 file49">
+SettingsMap.hs:47:41-56: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withName</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptyOptions</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>withName</span> <span class='hs-str'>"sad"</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptyOptions</span></pre>
+
+</div>
+
+<div class="hint25 file49">
+SettingsMap.hs:47:58: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withName</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptyOptions</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withName</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varid'>emptyOptions</span></pre>
+
+</div>
+
+<div class="hint26 file49">
+SettingsMap.hs:50:16-37: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withVersionS</span> <span class='hs-str'>"0.1.0"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>withNameS</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptySettings</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>withVersionS</span> <span class='hs-str'>"0.1.0"</span> <span class='hs-varop'>$</span> <span class='hs-layout'>(</span><span class='hs-varid'>withNameS</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptySettings</span></pre>
+
+</div>
+
+<div class="hint26 file49">
+SettingsMap.hs:50:41-57: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withNameS</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptySettings</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>withNameS</span> <span class='hs-str'>"sad"</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptySettings</span></pre>
+
+</div>
+
+<div class="hint25 file49">
+SettingsMap.hs:50:59: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withNameS</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varop'>$</span> <span class='hs-varid'>emptySettings</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>withNameS</span> <span class='hs-str'>"sad"</span><span class='hs-layout'>)</span> <span class='hs-varid'>emptySettings</span></pre>
+
+</div>
+
+<div class="hint36 file50">
+Show.hs:(17,1)-(18,30): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Portfolio</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Portfolio</span> <span class='hs-layout'>{</span><span class='hs-sel'>_projects</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Project</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Portfolio</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Portfolio</span> <span class='hs-layout'>{</span><span class='hs-sel'>_projects</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Project</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>}</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint36 file50">
+Show.hs:(20,1)-(22,25): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Project</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Project</span> <span class='hs-layout'>{</span><span class='hs-sel'>_name</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>ProjectName</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Project</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Project</span> <span class='hs-layout'>{</span><span class='hs-sel'>_name</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>ProjectName</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Show</span><span class='hs-layout'>,</span> <span class='hs-conid'>Eq</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint26 file51">
+ShowS.hs:9:14-31: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span></pre>
+
+</div>
+
+<div class="hint25 file51">
+ShowS.hs:33:14: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>props</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>props</span></pre>
+
+</div>
+
+<div class="hint26 file52">
+ShowsPrec.hs:9:14-31: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>propF</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span></pre>
+
+</div>
+
+<div class="hint25 file52">
+ShowsPrec.hs:33:14: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>props</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>props</span></pre>
+
+</div>
+
+<div class="hint26 file53">
+SmartConstructorEither.hs:19:6-12: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>x</span> <span class='hs-varop'>&gt;</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+    <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>y</span> <span class='hs-varop'>&lt;</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+        <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+            <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+        <span class='hs-keyword'>else</span>
+            <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span>
+    <span class='hs-keyword'>else</span>
+        <span class='hs-conid'>Left</span> <span class='hs-str'>"y must be higher then 5"</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"x must be higher then 5"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-varid'>x</span> <span class='hs-varop'>&gt;</span> <span class='hs-num'>5</span> <span class='hs-keyword'>then</span>
+    <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>y</span> <span class='hs-varop'>&lt;</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+        <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+            <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+        <span class='hs-keyword'>else</span>
+            <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span>
+    <span class='hs-keyword'>else</span>
+        <span class='hs-conid'>Left</span> <span class='hs-str'>"y must be higher then 5"</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"x must be higher then 5"</span></pre>
+
+</div>
+
+<div class="hint26 file53">
+SmartConstructorEither.hs:20:8-14: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>y</span> <span class='hs-varop'>&lt;</span> <span class='hs-num'>5</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+    <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+        <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+    <span class='hs-keyword'>else</span>
+        <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"y must be higher then 5"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-varid'>y</span> <span class='hs-varop'>&lt;</span> <span class='hs-num'>5</span> <span class='hs-keyword'>then</span>
+    <span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+        <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+    <span class='hs-keyword'>else</span>
+        <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"y must be higher then 5"</span></pre>
+
+</div>
+
+<div class="hint26 file53">
+SmartConstructorEither.hs:21:10-18: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-layout'>(</span><span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span><span class='hs-layout'>)</span> <span class='hs-keyword'>then</span>
+    <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>if</span> <span class='hs-varid'>z</span> <span class='hs-varop'>/=</span> <span class='hs-num'>42</span> <span class='hs-keyword'>then</span>
+    <span class='hs-conid'>Right</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Position</span> <span class='hs-varid'>x</span> <span class='hs-varid'>y</span> <span class='hs-varid'>z</span>
+<span class='hs-keyword'>else</span>
+    <span class='hs-conid'>Left</span> <span class='hs-str'>"z can't be the answer"</span></pre>
+
+</div>
+
+<div class="hint10 file54">
+StateT.hs:(24,11)-(27,27): Warning: Redundant flip<br/>
+Found<br/>
+<pre><span class='hs-definition'>flip</span>
+  <span class='hs-varid'>runState</span> <span class='hs-num'>42</span>
+  <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span>
+     <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"Y"</span><span class='hs-layout'>)</span>
+     <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>replaceState</span> <span class='hs-str'>"Z"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>runState</span>
+  <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span>
+     <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"Y"</span><span class='hs-layout'>)</span>
+     <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>replaceState</span> <span class='hs-str'>"Z"</span><span class='hs-layout'>)</span>
+  <span class='hs-num'>42</span></pre>
+
+</div>
+
+<div class="hint16 file54">
+StateT.hs:(24,29)-(25,34): Warning: Use &gt;&gt;<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;</span> <span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint16 file54">
+StateT.hs:(24,29)-(26,34): Warning: Use &gt;&gt;<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"Y"</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>""</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-keyglyph'>\</span> <span class='hs-keyword'>_</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"X"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;</span> <span class='hs-layout'>(</span><span class='hs-keyword'>do</span> <span class='hs-varid'>return</span> <span class='hs-str'>"Y"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint3 file55">
+StateUpdates.hs:41:1-24: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>updateC'</span> <span class='hs-varid'>n</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>State</span> <span class='hs-num'>0</span> <span class='hs-num'>0</span> <span class='hs-varid'>n</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>updateC'</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>State</span> <span class='hs-num'>0</span> <span class='hs-num'>0</span></pre>
+
+</div>
+
+<div class="hint19 file55">
+StateUpdates.hs:52:6-25: Warning: Use fold<br/>
+Found<br/>
+<pre><span class='hs-definition'>foldr</span> <span class='hs-varid'>mappend</span> <span class='hs-varid'>mempty</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>Data.Foldable.fold</span></pre>
+
+</div>
+
+<div class="hint25 file55">
+StateUpdates.hs:79:9: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varop'>$</span> <span class='hs-varid'>chain</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>print</span> <span class='hs-varid'>chain</span></pre>
+
+</div>
+
+<div class="hint7 file55">
+StateUpdates.hs:81:25-44: Warning: Monoid law, right identity<br/>
+Found<br/>
+<pre><span class='hs-definition'>updateB'</span> <span class='hs-num'>5</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-varid'>mempty</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>updateB'</span> <span class='hs-num'>5</span></pre>
+
+</div>
+
+<div class="hint0 file56">
+Strings.hs:14:1-12: Error: Parse error: Invalid type signature: BLU.toString :: ...
+Should be of form &lt;variable&gt; :: &lt;type&gt;<br/>
+Found<br/>
+<pre>  <span class='hs-comment'>-- String &lt;-&gt; ByteString</span>
+  
+<span class='hs-varop'>&gt;</span> <span class='hs-conid'>BLU.toString</span>   <span class='hs-keyglyph'>::</span> <span class='hs-conid'>BL.ByteString</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span>
+  <span class='hs-conid'>BLU.fromString</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>BL.ByteString</span>
+  <span class='hs-conid'>BSU.toString</span>   <span class='hs-keyglyph'>::</span> <span class='hs-conid'>BS.ByteString</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span>
+</pre>
+
+</div>
+
+<div class="hint29 file57">
+SysEnv.hs:(18,8)-(19,42): Suggestion: Use &lt;&amp;&gt;<br/>
+Found<br/>
+<pre><span class='hs-definition'>getEnvironment</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>return</span> <span class='hs-varop'>.</span> <span class='hs-varid'>unlines</span> <span class='hs-varop'>.</span> <span class='hs-varid'>fmap</span> <span class='hs-varid'>prettyEnvVar</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>getEnvironment</span> <span class='hs-conid'>Data.Functor</span><span class='hs-varop'>.&lt;&amp;&gt;</span> <span class='hs-layout'>(</span><span class='hs-varid'>unlines</span> <span class='hs-varop'>.</span> <span class='hs-varid'>fmap</span> <span class='hs-varid'>prettyEnvVar</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint28 file57">
+SysEnv.hs:(24,7)-(25,20): Suggestion: Use &lt;$&gt;<br/>
+Found<br/>
+<pre><span class='hs-definition'>return</span> <span class='hs-varop'>.</span> <span class='hs-varid'>unlines</span> <span class='hs-varop'>.</span> <span class='hs-varid'>fmap</span> <span class='hs-varid'>prettyEnvVar</span> <span class='hs-varop'>=&lt;&lt;</span> <span class='hs-varid'>getEnvironment</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>unlines</span> <span class='hs-varop'>.</span> <span class='hs-varid'>fmap</span> <span class='hs-varid'>prettyEnvVar</span><span class='hs-layout'>)</span> <span class='hs-varop'>&lt;$&gt;</span> <span class='hs-varid'>getEnvironment</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint9 file58">
+Tree.hs:10:10-20: Warning: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-conid'>NilWrites</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-conid'>NilWrites</span></pre>
+
+</div>
+
+<div class="hint22 file59">
+Tree2.hs:19:40-72: Warning: Use mapMaybe<br/>
+Found<br/>
+<pre><span class='hs-definition'>catMaybes</span> <span class='hs-varop'>$</span> <span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varid'>filterTree</span> <span class='hs-varid'>p</span><span class='hs-layout'>)</span> <span class='hs-varid'>xs</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>mapMaybe</span> <span class='hs-layout'>(</span><span class='hs-varid'>filterTree</span> <span class='hs-varid'>p</span><span class='hs-layout'>)</span> <span class='hs-varid'>xs</span></pre>
+
+</div>
+
+<div class="hint21 file59">
+Tree2.hs:22:21-52: Warning: Use mapM<br/>
+Found<br/>
+<pre><span class='hs-definition'>sequence</span> <span class='hs-varop'>$</span> <span class='hs-varid'>map</span> <span class='hs-layout'>(</span><span class='hs-varid'>filterTree</span> <span class='hs-varid'>p</span><span class='hs-layout'>)</span> <span class='hs-varid'>xs</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>mapM</span> <span class='hs-layout'>(</span><span class='hs-varid'>filterTree</span> <span class='hs-varid'>p</span><span class='hs-layout'>)</span> <span class='hs-varid'>xs</span></pre>
+
+</div>
+
+<div class="hint25 file60">
+TreeWriter.hs:17:19: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Node</span> <span class='hs-varid'>x</span> <span class='hs-conid'>[]</span><span class='hs-keyglyph'>]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Node</span> <span class='hs-varid'>x</span> <span class='hs-conid'>[]</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint25 file60">
+TreeWriter.hs:20:23: Suggestion: Redundant $<br/>
+Found<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Node</span> <span class='hs-varid'>x</span> <span class='hs-conid'>[]</span><span class='hs-keyglyph'>]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>tell</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Node</span> <span class='hs-varid'>x</span> <span class='hs-conid'>[]</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint3 file61">
+TripleSmartConstructor.hs:30:1-18: Warning: Eta reduce<br/>
+Found<br/>
+<pre><span class='hs-definition'>applyB</span> <span class='hs-varid'>x</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Right</span> <span class='hs-varid'>x</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>applyB</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Right</span></pre>
+
+</div>
+
+<div class="hint36 file62">
+TypeLevelListToValues.hs:(14,1)-(15,21): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Item</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Item</span> <span class='hs-conid'>Char</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Item</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Item</span> <span class='hs-conid'>Char</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint24 file63">
+UserMap.hs:35:8-52: Suggestion: Move brackets to avoid $<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>mapM</span> <span class='hs-varid'>lookupUser</span> <span class='hs-varop'>$</span> <span class='hs-varid'>map</span> <span class='hs-varid'>show</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>1</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>5</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>print</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>mapM</span> <span class='hs-varid'>lookupUser</span> <span class='hs-layout'>(</span><span class='hs-varid'>map</span> <span class='hs-varid'>show</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>1</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>5</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>print</span></pre>
+
+</div>
+
+<div class="hint5 file63">
+UserMap.hs:35:9-41: Warning: Fuse mapM/map<br/>
+Found<br/>
+<pre><span class='hs-definition'>mapM</span> <span class='hs-varid'>lookupUser</span> <span class='hs-varop'>$</span> <span class='hs-varid'>map</span> <span class='hs-varid'>show</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>1</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>5</span><span class='hs-keyglyph'>]</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>mapM</span> <span class='hs-layout'>(</span><span class='hs-varid'>lookupUser</span> <span class='hs-varop'>.</span> <span class='hs-varid'>show</span><span class='hs-layout'>)</span> <span class='hs-keyglyph'>[</span><span class='hs-num'>1</span> <span class='hs-keyglyph'>..</span> <span class='hs-num'>5</span><span class='hs-keyglyph'>]</span></pre>
+
+</div>
+
+<div class="hint36 file64">
+Wrap.hs:(3,1)-(5,23): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Wrap</span> <span class='hs-varid'>a</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Wrap</span> <span class='hs-layout'>{</span><span class='hs-varid'>unWrap</span> <span class='hs-keyglyph'>::</span> <span class='hs-varid'>a</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>Wrap</span> <span class='hs-varid'>a</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Wrap</span> <span class='hs-layout'>{</span><span class='hs-varid'>unWrap</span> <span class='hs-keyglyph'>::</span> <span class='hs-varid'>a</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-layout'>(</span><span class='hs-conid'>Eq</span><span class='hs-layout'>,</span> <span class='hs-conid'>Show</span><span class='hs-layout'>)</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint26 file65">
+Writer.hs:53:8-22: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"foo"</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-definition'>tellASA</span> <span class='hs-str'>"foo"</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file65">
+Writer.hs:54:14-28: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint26 file65">
+Writer.hs:55:7-27: Suggestion: Redundant bracket<br/>
+Found<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"foo"</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span>
+  <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-layout'>(</span><span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-varid'>tellB</span> <span class='hs-str'>"fib"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"foo"</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varid'>tellASA</span> <span class='hs-str'>"bar"</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>const</span> <span class='hs-layout'>(</span><span class='hs-varid'>tellB</span> <span class='hs-str'>"fib"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+<div class="hint36 file66">
+tryReadFile.hs:(12,1)-(14,17): Suggestion: Use newtype instead of data<br/>
+Found<br/>
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>MyError</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>MyError</span> <span class='hs-layout'>{</span><span class='hs-varid'>unMyError</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+Perhaps<br/>
+<pre><span class='hs-keyword'>newtype</span> <span class='hs-conid'>MyError</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>MyError</span> <span class='hs-layout'>{</span><span class='hs-varid'>unMyError</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+  <span class='hs-keyword'>deriving</span> <span class='hs-conid'>Show</span></pre>
+<span class='note'>Note: decreases laziness</span>
+</div>
+
+<div class="hint29 file66">
+tryReadFile.hs:(29,8)-(30,37): Suggestion: Use &lt;&amp;&gt;<br/>
+Found<br/>
+<pre><span class='hs-definition'>tryReadFile</span> <span class='hs-str'>"main.hs"</span> <span class='hs-varop'>&gt;&gt;=</span> <span class='hs-varid'>return</span> <span class='hs-varop'>.</span> <span class='hs-varid'>fromMaybe</span> <span class='hs-str'>"no content"</span></pre>
+Perhaps<br/>
+<pre><span class='hs-layout'>(</span><span class='hs-varid'>tryReadFile</span> <span class='hs-str'>"main.hs"</span> <span class='hs-conid'>Data.Functor</span><span class='hs-varop'>.&lt;&amp;&gt;</span> <span class='hs-varid'>fromMaybe</span> <span class='hs-str'>"no content"</span><span class='hs-layout'>)</span></pre>
+
+</div>
+
+</div>
+<script type='text/javascript'>
+show(window.location.hash.slice(1), true);
+</script>
+</body>
+</html>
