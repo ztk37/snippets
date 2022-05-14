@@ -17,6 +17,15 @@ newtype T m a = T
 t :: T IO Int
 t = T $ \(s, n) -> return (length s + n)
 
+newtype W m a = W
+  { runW :: m (a, [(String, String)])
+  } deriving ( Functor
+             , Applicative
+             , Monad
+             , MonadIO
+             , MonadWriter [(String, String)]
+             ) via (WriterT [(String, String)] m)
+
 main :: IO ()
 main = do
   r <- runT t ("Foo", 2)
