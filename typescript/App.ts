@@ -64,7 +64,7 @@ class App {
         .run()
 
 
-    const app = await App
+    const app = App
         .defaults()
         .params({
             "a": "1",
@@ -90,5 +90,5 @@ class App {
             }
         });
 
-    app.run()
+    await app.run()
 })();
