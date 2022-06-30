@@ -1,12 +1,14 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
--- {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 import Control.Monad.Reader
 import System.IO (hFlush, stdout)
 
 data Environment = Environment
   { envSomeValue :: String
-  }
+  } deriving (Show)
 
 env :: Environment
 env = Environment "SomeValue"
@@ -26,6 +28,12 @@ runAppM env = flip runReaderT env . unAppM
 askSomeValue :: AppM String
 askSomeValue = asks envSomeValue
 
+class MonadReader env m => HasSomeValue env m where
+  getSomeValue :: m String
+
+instance HasSomeValue Environment AppM where
+  getSomeValue = asks envSomeValue
+
 class MonadIO m => MonadPrompt m where
   prompt :: String -> m String
 
@@ -43,17 +51,17 @@ instance MonadConsole AppM where
   logStrLn s = liftIO $ putStrLn s
   logStr s = liftIO $ putStr s
 
-{--
-  Very uncreative name. It just groups multiple constraints together under a new name. This requires ConstraintKinds as well.
-  TODO: Create a typeclass for askSomeValue aka HasSomeValue
---}
--- type MonadApp m = (MonadPrompt m, MonadConsole m)
+-- Very uncreative name. It just groups multiple constraints together under a new name. This requires ConstraintKinds as well.
+type MonadApp env m
+  = ( MonadPrompt m
+    , MonadConsole m
+    , HasSomeValue env m
+    )
 
-
--- app :: MonadPromptConsole m => m ()
-app :: AppM ()
+-- app :: AppM ()
+app :: MonadApp Environment m => m ()
 app = do
-  v <- askSomeValue
+  v <- getSomeValue
   i <- prompt "Some other value> "
 
   logStrLn $ show (v, i)
