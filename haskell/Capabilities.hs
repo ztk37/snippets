@@ -38,10 +38,14 @@ class MonadIO m => MonadPrompt m where
   prompt :: String -> m String
 
 instance MonadPrompt AppM where
-  prompt s = do
-    liftIO $ putStr s
-    liftIO $ hFlush stdout
-    liftIO getLine
+  prompt s = liftIO $ do
+    putStr s
+    hFlush stdout
+    getLine
+--  prompt s = do
+--    liftIO $ putStr s
+--    liftIO $ hFlush stdout
+--    liftIO getLine
 
 class MonadIO m => MonadConsole m where
   logStrLn :: String -> m ()
