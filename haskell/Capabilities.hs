@@ -43,8 +43,12 @@ instance MonadConsole AppM where
   logStrLn s = liftIO $ putStrLn s
   logStr s = liftIO $ putStr s
 
--- Very uncreative name. It just groups multiple constraints together under a new name. This requires ConstraintKinds as well. TODO: Create a typeclass for askSomeValue aka HasSomeValue
+{--
+  Very uncreative name. It just groups multiple constraints together under a new name. This requires ConstraintKinds as well.
+  TODO: Create a typeclass for askSomeValue aka HasSomeValue
+--}
 -- type MonadApp m = (MonadPrompt m, MonadConsole m)
+
 
 -- app :: MonadPromptConsole m => m ()
 app :: AppM ()
