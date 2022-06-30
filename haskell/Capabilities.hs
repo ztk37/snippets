@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+-- {-# LANGUAGE ConstraintKinds #-}
 
 import Control.Monad.Reader
 import System.IO (hFlush, stdout)
@@ -25,10 +26,10 @@ runAppM env = flip runReaderT env . unAppM
 askSomeValue :: AppM String
 askSomeValue = asks envSomeValue
 
-class MonadIO m => MonadInput m where
+class MonadIO m => MonadPrompt m where
   prompt :: String -> m String
 
-instance MonadInput AppM where
+instance MonadPrompt AppM where
   prompt s = do
     liftIO $ putStr s
     liftIO $ hFlush stdout
@@ -42,6 +43,10 @@ instance MonadConsole AppM where
   logStrLn s = liftIO $ putStrLn s
   logStr s = liftIO $ putStr s
 
+-- Very uncreative name. It just groups multiple constraints together under a new name. This requires ConstraintKinds as well. TODO: Create a typeclass for askSomeValue aka HasSomeValue
+-- type MonadApp m = (MonadPrompt m, MonadConsole m)
+
+-- app :: MonadPromptConsole m => m ()
 app :: AppM ()
 app = do
   v <- askSomeValue
