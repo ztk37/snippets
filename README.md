@@ -1,3 +1,3 @@
 # `snippets`
 
-> Playing around with some technologies
+> Experimenting with various technologies
