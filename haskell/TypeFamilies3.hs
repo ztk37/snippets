@@ -3,6 +3,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module TypeFamilies where
 
@@ -50,6 +51,15 @@ type family Counts' (acc :: (Nat, Nat, Nat)) (xs :: [ABC]) :: (Nat, Nat, Nat) wh
 
 type Count = Counts '[A, A, B, B, A, B, B, C, C, B, C, A, A, A, C, C, A, A, C, C, C, B, A, A, A, C, B, A, C, A]
 
+class ToCounts (counts :: (Nat, Nat, Nat)) where
+   toCounts :: Proxy counts -> (Integer, Integer, Integer)
+
+instance (KnownNat as, KnownNat bs, KnownNat cs) => ToCounts '(as, bs, cs) where
+  toCounts _ = (natVal (Proxy :: Proxy as), natVal (Proxy :: Proxy bs), natVal (Proxy :: Proxy cs))
+
 type family When (cond :: Bool) (body :: *) :: * where
   When 'True body = body
   When 'False _ = ()
+
+main' :: IO ()
+main' = print $ toCounts @Count Proxy
