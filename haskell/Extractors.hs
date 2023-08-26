@@ -6,9 +6,6 @@
 data Context = Context String Int Bool
   deriving (Show)
   
-data Result = Result
-  deriving (Show)
-  
 class FromContext a where
   fromContext :: Context -> a
   
