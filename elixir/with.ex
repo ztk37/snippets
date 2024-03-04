@@ -25,6 +25,32 @@ end
 User.create(%{
     "dob" => 1,
     "name" => "damn"
-}) |> IO.inspect
+}) |> IO.inspect()
+
+defmodule Core.Something do
+  alias __MODULE__
+
+  defstruct name: nil, value: nil
+  
+  def create(params \\ []) do
+    with { :ok, name } <- validate_name(Keyword.get(params, :name)),
+         { :ok, value } <- validate_value(Keyword.get(params, :value))
+    do
+      %Something{name: name, value: value}
+    else
+      error -> error
+    end
+  end
+  
+  defp validate_name(nil), do: { :error, "Name can't be nil" }
+  defp validate_name(""), do: { :error, "Name can't be empty"}
+  defp validate_name(name) when is_binary(name), do: { :ok, name }
+  
+  defp validate_value(nil), do: { :error, "Value can't be nil" }
+  defp validate_value(""), do: { :error, "Value can't be empty"}
+  defp validate_value(value) when is_binary(value), do: { :ok, value }
+end
+
+Core.Something.create(name: "Somebody", value: "Some Value") |> IO.inspect()
 
 # https://www.openmymind.net/Elixirs-With-Statement/
